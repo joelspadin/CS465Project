@@ -4,15 +4,29 @@
 	<meta charset="utf-8">
 	<title>Song Vine</title>
 
-	<link rel="stylesheet" href="/css/songvine.css">
-	<script src="/js/d3.v2.js"></script>
-	<script src="/js/jquery.js"></script>
-	<script src="/js/prefixfree.js"></script>
-	<script src="/js/lastfm/lastfm.api.js"></script>
-	<script src="/js/lastfm/lastfm.api.md5.js"></script>
+	<link rel="stylesheet" href="css/songvine.css">
+	<link rel="stylesheet" href="css/songvine-home.css">
+
+	<script src="js/d3.v2.js"></script>
+	<script src="js/jquery.js"></script>
+	<script src="js/prefixfree.js"></script>
+	<script src="js/lastfm/lastfm.api.js"></script>
+	<script src="js/lastfm/lastfm.api.md5.js"></script>
 
 </head>
 <body>
+	<div class="view" id="view-home">
+		<h1>Song Vine</h1>
+		<p>Some description text</p>
+		<div id="home-search">
+			<input type="text"><input type="button" value="Search">
+		</div>
+	</div>
 
+	<div class="view" id="view-search" style="display: none"></div>
+
+	<div class="view" id="view-player" style="display: none">
+
+	</div>
 </body>
 </html>
