@@ -1,0 +1,72 @@
+@import "colors.less";
+
+body {
+	font: 16px/20px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
+	color: @c-text;
+	background-color: @c-background;
+}
+
+h1 {
+	font-weight: 400;
+	font-size: 24px;
+	line-height: 30px;
+}
+
+h2 {
+	font-weight: 400;
+	font-size: 18px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+// Search Box
+
+@search-width: 480px;
+@submit-width: 40px;
+
+.search-box {
+	width: @search-width;
+	margin: 0 auto;
+
+	text-align: left;
+
+	background: @c-input-background;
+	border: 1px solid @c-input-border;
+	border-radius: @corner-radius;
+
+	input {
+		padding: 3px 0 3px 8px;
+
+		font-size: 24px;
+		line-height: 30px;
+		
+		background: transparent;
+		border: none;
+	}
+
+	input[type=text] {
+		width: (@search-width - @submit-width - 2);
+	}
+
+	input[type=button] {
+		width: @submit-width;
+		text-indent: -9999px;
+
+		outline: none;
+		background: @c-input-background url('../img/search.png') center no-repeat;
+
+		transition: background-color 0.1s;
+
+		&:hover {
+			background-color: @c-button-hover;
+		}
+
+		&:active {
+			background-color: @c-button-press;
+		}
+	}
+}
+
+

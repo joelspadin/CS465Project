@@ -1,0 +1,39 @@
+#view-search {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1em 20px;
+}
+#view-search header {
+  overflow: auto;
+  margin: 1em 0;
+}
+#view-search h1 {
+  float: left;
+  margin: 0;
+  font-size: 30px;
+  line-height: 35px;
+}
+#view-search .search-box {
+  float: right;
+}
+#view-search #search-results {
+  width: 100%;
+  border: 1px solid #aaaaaa;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+#view-search #search-results thead {
+  background-color: #dddddd;
+}
+#view-search #search-results th,
+#view-search #search-results td {
+  padding: 3px 5px;
+  text-align: left;
+}
+#view-search #search-results tr > td:first-child,
+#view-search #search-results tr > th:first-child {
+  padding-left: 40px;
+}
+#view-search #search-results tr > td:last-child {
+  padding-right: 40px;
+}

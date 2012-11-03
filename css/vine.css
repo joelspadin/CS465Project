@@ -1,0 +1,48 @@
+body {
+  font: 16px/20px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
+  color: #000000;
+  background-color: #f0f0f0;
+}
+h1 {
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 30px;
+}
+h2 {
+  font-weight: 400;
+  font-size: 18px;
+}
+* {
+  box-sizing: border-box;
+}
+.search-box {
+  width: 480px;
+  margin: 0 auto;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #aaaaaa;
+  border-radius: 3px;
+}
+.search-box input {
+  padding: 3px 0 3px 8px;
+  font-size: 24px;
+  line-height: 30px;
+  background: transparent;
+  border: none;
+}
+.search-box input[type=text] {
+  width: 438px;
+}
+.search-box input[type=button] {
+  width: 40px;
+  text-indent: -9999px;
+  outline: none;
+  background: #ffffff url('../img/search.png') center no-repeat;
+  transition: background-color 0.1s;
+}
+.search-box input[type=button]:hover {
+  background-color: #eeeeee;
+}
+.search-box input[type=button]:active {
+  background-color: #cccccc;
+}

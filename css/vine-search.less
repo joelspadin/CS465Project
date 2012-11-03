@@ -1,0 +1,55 @@
+﻿@import "colors.less";
+
+
+#view-search {
+
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 1em 20px;
+
+	header {
+		overflow: auto;
+		margin: 1em 0;
+	}
+
+	h1 {
+		float: left;
+		margin: 0;
+
+		font-size: 30px;
+		line-height: 35px;
+	}
+
+	.search-box {
+		float: right;
+	}
+
+
+	#search-results {
+		width: 100%;
+
+		border: 1px solid @c-search-border;
+		border-collapse: collapse;
+
+		background-color: @c-search-background;
+
+		thead {
+			background-color: @c-search-header;
+		}
+
+		th, td {
+			padding: 3px 5px;
+			text-align: left;
+		}
+
+		tr > td:first-child,
+		tr > th:first-child {
+			padding-left: 40px;
+		}
+
+		tr > td:last-child {
+			padding-right: 40px;
+		}
+	}
+
+}

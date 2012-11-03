@@ -1,32 +1,66 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
 	<meta charset="utf-8">
 	<title>Song Vine</title>
 
-	<link rel="stylesheet" href="css/songvine.css">
-	<link rel="stylesheet" href="css/songvine-home.css">
+	<link rel="stylesheet" href="/cs465/css/vine.css">
+	<link rel="stylesheet" href="/cs465/css/vine-home.css">
+	<link rel="stylesheet" href="/cs465/css/vine-search.css">
+	<link rel="stylesheet" href="/cs465/css/vine-player.css">
 
-	<script src="js/d3.v2.js"></script>
-	<script src="js/jquery.js"></script>
-	<script src="js/prefixfree.js"></script>
-	<script src="js/lastfm/lastfm.api.js"></script>
-	<script src="js/lastfm/lastfm.api.md5.js"></script>
+	<script src="/cs465/js/d3.v2.js"></script>
+	<script src="/cs465/js/jquery.js"></script>
+	<script src="/cs465/js/prefixfree.js"></script>
+	<script src="/cs465/js/jquery.history.js"></script>
+	<script src="/cs465/js/lastfm/lastfm.api.js"></script>
+	<script src="/cs465/js/lastfm/lastfm.api.md5.js"></script>
+	
+	<script src="/cs465/js/vine.js"></script>
 
 </head>
 <body>
 	<div class="view" id="view-home">
-		<h1>Song Vine</h1>
-		<p>Some description text</p>
-		<div id="home-search">
-			<input type="text"><input type="button" value="Search">
+		<h1>Audio Vine</h1>
+		<p>
+			Audio Vine lets you discover music by d̸̴̞̪̥̪̥̲ͧ̑̇ͦ̚͝o̴̱̫͔͍̙̟̬̿̎́̽́̓͋ͤ́͢͞i͓̤̼̝̒̔ͧͯ͘n̗̠ͦ̓̕ͅğͦ̈́̅̈́͂͠͏̨̟̳ ̸̞̠̻̳̹͋̈́̎̾̈͐ͅͅs̖͙̘͔̖̥̪̪͒̄͑̆͆̀o̴͖̗̻͈ͦͣ̚̚͝m̴͎̞͔̮̞͚̎̈́͒͑̓́̑ͯ̈́͢ȇ̗̱̦̻̲̺̙̖͑͟t͖̠͚̝̔ͥ͊̃̽h̦͉͙͕̄̑̓̒̐̑̒͆̀i̞͔̩̞͆̀̓͗n̴̰̹͓̝͕̜͙͈ͫ̽ͦ͊ͨ̊̾̿͑͘͜g̝͇̖͂ͮ̌̾̿.̸̞́̋̋͆<br>
+			Search for a song below to begin.
+		</p>
+		<div id="home-search" class="search-box">
+			<input type="text" placeholder="Search for a song"><input type="button" value="Search">
 		</div>
 	</div>
 
-	<div class="view" id="view-search" style="display: none"></div>
+	<div class="view" id="view-search" style="display: none">
+		<header>
+			<h1>Pick a starting song</h1>
+			<div id="search-search" class="search-box">
+				<input type="text" placeholder="Search for another song"><input type="button" value="Search">
+			</div>
+		</header>
+
+		<h2>Showing results for &ldquo;<span id="search-query"></span>&rdquo;</h2>
+		<div id="results-wrap">
+			<table id="search-results">
+				<thead>
+					<tr>
+						<th>Title</th><th>Artist</th><th>Album</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Testify</td><td>Rage Against the Machine</td><td>Testify</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 
 	<div class="view" id="view-player" style="display: none">
-
+		<div id="vine"></div>
+		<div id="player-controls" class="control">
+			Yay. Player controls!
+		</div>
 	</div>
 </body>
 </html>
