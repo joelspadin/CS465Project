@@ -91,9 +91,17 @@
       }
     });
 
-    SongData.property('art', {
+    SongData.property('albumArt', {
       get: function() {
-        return null;
+        var _ref;
+        return (_ref = this.lastfm.albumArt['small']) != null ? _ref : null;
+      }
+    });
+
+    SongData.property('largeAlbumArt', {
+      get: function() {
+        var _ref;
+        return (_ref = this.lastfm.albumArt['large']) != null ? _ref : null;
       }
     });
 
@@ -142,11 +150,11 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 54
+          lineno: 57
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        var _ref, _ref1, _ref2, _ref3;
+        var _ref, _ref1, _ref2, _ref3, _ref4;
         if (err) {
           callback(err, _this);
           return;
@@ -156,6 +164,7 @@
         _this.lastfm.name = data.track.name;
         _this.lastfm.artist = (_ref = (_ref1 = data.track.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
         _this.lastfm.album = (_ref2 = (_ref3 = data.track.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
+        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = data.track.album) != null ? _ref4.image : void 0);
         _this.lastfm.url = data.track.url;
         return callback(null, _this);
       });
@@ -178,7 +187,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 71
+          lineno: 75
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -215,7 +224,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 90
+          lineno: 94
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -232,7 +241,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 94
+            lineno: 98
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -244,13 +253,14 @@
     };
 
     SongData.fromLastFMData = function(data) {
-      var songdata, _ref, _ref1, _ref2, _ref3;
+      var songdata, _ref, _ref1, _ref2, _ref3, _ref4;
       songdata = new SongData;
       console.log(data);
       songdata.lastfm.id = data.mbid;
       songdata.lastfm.name = data.name;
       songdata.lastfm.artist = (_ref = (_ref1 = data.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
       songdata.lastfm.album = (_ref2 = (_ref3 = data.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
+      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = data.album) != null ? _ref4.image : void 0);
       return songdata;
     };
 
@@ -263,6 +273,17 @@
       songdata.gs.album = data.AlbumName;
       songdata.gs.url = data.Url;
       return songdata;
+    };
+
+    SongData.parseLastFMImage = function(images) {
+      var image, parsed, _i, _len;
+      if (!(images != null)) return {};
+      parsed = {};
+      for (_i = 0, _len = images.length; _i < _len; _i++) {
+        image = images[_i];
+        parsed[image.size] = image['#text'];
+      }
+      return parsed;
     };
 
     SongData.prototype.getSimilar = function(limit, callback) {
@@ -283,7 +304,7 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 126
+          lineno: 139
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -329,7 +350,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 136
+                  lineno: 149
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -378,7 +399,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 153
+              lineno: 166
             })));
             __iced_deferrals._fulfill();
           })(function() {

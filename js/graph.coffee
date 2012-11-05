@@ -25,8 +25,11 @@ class root.SongData
 	@property 'album',
 		get: -> this.lastfm.album ? this.gs.album
 
-	@property 'art',
-		get: -> null
+	@property 'albumArt',
+		get: -> this.lastfm.albumArt['small'] ? null
+
+	@property 'largeAlbumArt',
+		get: -> this.lastfm.albumArt['large'] ? null
 
 	constructor: () ->
 		this.loaded = false
@@ -62,6 +65,7 @@ class root.SongData
 		this.lastfm.name = data.track.name
 		this.lastfm.artist = data.track.artist?.name ? null
 		this.lastfm.album = data.track.album?.title ? null
+		this.lastfm.albumArt = SongData.parseLastFMImage(data.track.album?.image)
 		this.lastfm.url = data.track.url
 
 		callback null, this
@@ -106,6 +110,7 @@ class root.SongData
 		songdata.lastfm.name = data.name
 		songdata.lastfm.artist = data.artist?.name ? null
 		songdata.lastfm.album = data.album?.title ? null
+		songdata.lastfm.albumArt = SongData.parseLastFMImage(data.album?.image)
 		return songdata
 
 	@fromGroovesharkData: (data) ->
@@ -119,6 +124,14 @@ class root.SongData
 		
 		return songdata
 
+	@parseLastFMImage: (images) ->
+		if not images?
+			return {}
+
+		parsed = {}
+		for image in images
+			parsed[image.size] = image['#text']
+		return parsed
 			
 	getSimilar: (limit, callback) =>
 		f = new SimilarTrackFinder(limit)
