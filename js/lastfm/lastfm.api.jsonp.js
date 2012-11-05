@@ -32,84 +32,135 @@ function LastFM(options){
 	};
 
 	/* Internal call (POST, GET). */
-	var internalCall = function(params, callbacks, requestMethod) {
-		// Modified to use CORS instead of iframes and JSONP
-		var xhr = new XMLHttpRequest();
+	var internalCall = function(params, callbacks, requestMethod){
+		/* Cross-domain POST request (doesn't return any data, always successful). */
+		if(requestMethod == 'POST'){
+			/* Create iframe element to post data. */
+			var html   = document.getElementsByTagName('html')[0];
+			var iframe = document.createElement('iframe');
+			var doc;
 
-		if (requestMethod === 'POST') {
-			xhr.open('post', apiUrl, true);
-			xhr.onload = function(e) {
-				if (this.status === 200) {
-					if (typeof (callbacks.success) !== 'undefined')
-						callbacks.success();
-				} else {
-					if (typeof (callbacks.error) !== 'undefined')
-						callbacks.error(this.status);
+			/* Set iframe attributes. */
+			iframe.width        = 1;
+			iframe.height       = 1;
+			iframe.style.border = 'none';
+			iframe.onload       = function(){
+				/* Remove iframe element. */
+				//html.removeChild(iframe);
+
+				/* Call user callback. */
+				if(typeof(callbacks.success) != 'undefined'){
+					callbacks.success();
 				}
+			};
+
+			/* Append iframe. */
+			html.appendChild(iframe);
+
+			/* Get iframe document. */
+			if(typeof(iframe.contentWindow) != 'undefined'){
+				doc = iframe.contentWindow.document;
+			}
+			else if(typeof(iframe.contentDocument.document) != 'undefined'){
+				doc = iframe.contentDocument.document.document;
+			}
+			else{
+				doc = iframe.contentDocument.document;
 			}
 
-			// Build data to send
-			var data = new FormData();
-			for (var param in params) {
-				if (params.hasOwnProperty(param))
-					data.append(param, params[param]);
+			/* Open iframe document and write a form. */
+			doc.open();
+			doc.clear();
+			doc.write('<form method="post" action="' + apiUrl + '" id="form">');
+
+			/* Write POST parameters as input fields. */
+			for(var param in params){
+				doc.write('<input type="text" name="' + param + '" value="' + params[param] + '">');
 			}
 
-			xhr.send(data)
+			/* Write automatic form submission code. */
+			doc.write('</form>');
+			doc.write('<script type="application/x-javascript">');
+			doc.write('document.getElementById("form").submit();');
+			doc.write('</script>');
 
-		} else {
-			// check for a cached response
+			/* Close iframe document. */
+			doc.close();
+		}
+		/* Cross-domain GET request (JSONP). */
+		else{
+			/* Get JSONP callback name. */
+			var jsonp = 'jsonp' + new Date().getTime();
+
+			/* Calculate cache hash. */
 			var hash = auth.getApiSignature(params);
 
-			if (typeof (cache) !== 'undefined' && cache.contains(hash) && !cache.isExpired(hash)) {
-				if (typeof (callbacks.success) !== 'undefined') {
+			/* Check cache. */
+			if(typeof(cache) != 'undefined' && cache.contains(hash) && !cache.isExpired(hash)){
+				if(typeof(callbacks.success) != 'undefined'){
 					callbacks.success(cache.load(hash));
 				}
+
 				return;
 			}
 
-			// build a query string and set the URL
-			params.format = 'json';
+			/* Set callback name and response format. */
+			params.callback = jsonp;
+			params.format   = 'json';
 
-			var query = [];
-			for (var param in params) {
-				if (params.hasOwnProperty(param))
-					query.push(encodeURIComponent(param) + "=" + encodeURIComponent(params[param]));
-			}
+			/* Create JSONP callback function. */
+			window[jsonp] = function(data){
+				/* Is a cache available?. */
+				if(typeof(cache) != 'undefined'){
+					var expiration = cache.getExpirationTime(params);
 
-			var url = apiUrl + '?' + query.join('&').replace(/%20/g, '+');
-
-			xhr.open('get', url, true);
-			xhr.onload = function(e) {
-				if (this.status === 200) {
-					// parse the data and cache it
-					var data = JSON.parse(this.responseText);
-
-					if(typeof(cache) != 'undefined'){
-						var expiration = cache.getExpirationTime(params);
-
-						if(expiration > 0){
-							cache.store(hash, data, expiration);
-						}
-					}
-
-					// user callbacks
-					if (typeof (data.error) != 'undefined') {
-						if (typeof (callbacks.error) != 'undefined') {
-							callbacks.error(data.error, data.message);
-						}
-					}
-					else if (typeof (callbacks.success) != 'undefined') {
-						callbacks.success(data);
-					}
-				} else {
-					if (typeof (callbacks.error) != 'undefined') {
-						callbacks.error(this.status, this.statusText);
+					if(expiration > 0){
+						cache.store(hash, data, expiration);
 					}
 				}
+
+				/* Call user callback. */
+				if(typeof(data.error) != 'undefined'){
+					if(typeof(callbacks.error) != 'undefined'){
+						callbacks.error(data.error, data.message);
+					}
+				}
+				else if(typeof(callbacks.success) != 'undefined'){
+					callbacks.success(data);
+				}
+
+				/* Garbage collect. */
+				window[jsonp] = undefined;
+
+				try{
+					delete window[jsonp];
+				}
+				catch(e){
+					/* Nothing. */
+				}
+
+				/* Remove script element. */
+				if(head){
+					head.removeChild(script);
+				}
+			};
+
+			/* Create script element to load JSON data. */
+			var head   = document.getElementsByTagName("head")[0];
+			var script = document.createElement("script");
+
+			/* Build parameter string. */
+			var array = [];
+
+			for(var param in params){
+				array.push(encodeURIComponent(param) + "=" + encodeURIComponent(params[param]));
 			}
 
-			xhr.send();
+			/* Set script source. */
+			script.src = apiUrl + '?' + array.join('&').replace(/%20/g, '+');
+
+			/* Append script element. */
+			head.appendChild(script);
 		}
 	};
 

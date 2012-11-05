@@ -1,5 +1,8 @@
 ﻿
 #view-home {
+	max-width: 700px;
+	padding: 0 20px;
+	margin: 0 auto;
 
 	text-align: center;
 
@@ -15,4 +18,40 @@
 		margin: 2em auto;
 	}
 
+
+	
+	#features {
+		text-align: left;
+	}
+
+	#supported-browsers {
+		list-style: none;
+		overflow: auto;
+
+		width: (128px + 40px) * 3;
+		padding: 0;
+		margin: 2em auto;
+
+		li {
+			float: left;
+			padding: 0 20px;
+
+			text-align: center;
+		}
+
+		img {
+			display: block;
+			width: 128px;
+			height: 128px;
+		}
+	}
+
+}
+
+@media (max-width: 540px) {
+	#view-home {
+		.search-box {
+			width: 100%;
+		}
+	}
 }

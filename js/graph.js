@@ -55,6 +55,7 @@
           return callback(null, result);
         },
         error: function(err) {
+          if (arguments.length > 1) err = Array.prototype.slice.apply(arguments);
           return callback(err, null);
         }
       }));
@@ -71,34 +72,44 @@
 
     SongData.property('name', {
       get: function() {
-        return this.lastfm.name;
+        var _ref;
+        return (_ref = this.lastfm.name) != null ? _ref : this.gs.name;
       }
     });
 
     SongData.property('artist', {
       get: function() {
-        return this.lasftm.artist;
+        var _ref;
+        return (_ref = this.lastfm.artist) != null ? _ref : this.gs.artist;
       }
     });
 
     SongData.property('album', {
       get: function() {
-        return this.lastfm.album;
+        var _ref;
+        return (_ref = this.lastfm.album) != null ? _ref : this.gs.album;
       }
     });
 
-    SongData.property('art', get(function() {
-      return null;
-    }));
+    SongData.property('art', {
+      get: function() {
+        return null;
+      }
+    });
 
     function SongData() {
       this.getSimilar = __bind(this.getSimilar, this);
+
+      this.getGroovesharkData = __bind(this.getGroovesharkData, this);
+
+      this.getLastFMData = __bind(this.getLastFMData, this);
       this.loaded = false;
       this.lastfm = {
         id: null,
         name: null,
         artist: null,
-        album: null
+        album: null,
+        url: null
       };
       this.gs = {
         id: null,
@@ -109,90 +120,170 @@
       };
     }
 
-    SongData.create = function(name, artist, callback) {
-      var err, fmdata, gsdata, songdata, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+    SongData.prototype.getLastFMData = function(callback) {
+      var data, err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      songdata = new SongData;
       (function(__iced_k) {
+        var _ref;
         __iced_deferrals = new iced.Deferrals(__iced_k, {
           parent: ___iced_passed_deferral,
-          funcname: "SongData.create"
+          funcname: "SongData.getLastFMData"
         });
-        awaitable(lastfm.track.getInfo({
-          track: name,
-          artist: artist != null ? artist : null,
+        awaitable(lastfm.track.getInfo)({
+          track: _this.name,
+          artist: (_ref = _this.artist) != null ? _ref : null,
           autocorrect: 1
         }, (__iced_deferrals.defer({
           assign_fn: (function() {
             return function() {
               err = arguments[0];
-              return fmdata = arguments[1];
+              return data = arguments[1];
             };
           })(),
-          lineno: 51
-        }))));
+          lineno: 54
+        })));
+        __iced_deferrals._fulfill();
+      })(function() {
+        var _ref, _ref1, _ref2, _ref3;
+        if (err) {
+          callback(err, _this);
+          return;
+        }
+        console.log(data);
+        _this.lastfm.id = data.track.id;
+        _this.lastfm.name = data.track.name;
+        _this.lastfm.artist = (_ref = (_ref1 = data.track.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
+        _this.lastfm.album = (_ref2 = (_ref3 = data.track.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
+        _this.lastfm.url = data.track.url;
+        return callback(null, _this);
+      });
+    };
+
+    SongData.prototype.getGroovesharkData = function(callback) {
+      var data, err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          funcname: "SongData.getGroovesharkData"
+        });
+        root.gs.search("" + _this.name + " " + _this.artist, (__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              err = arguments[0];
+              return data = arguments[1];
+            };
+          })(),
+          lineno: 71
+        })));
         __iced_deferrals._fulfill();
       })(function() {
         if (err) {
-          callback(err, songdata);
+          callback(err, _this);
           return;
         }
-        songdata.lastfm.id = fmdata.track.mbid;
-        songdata.lastfm.name = fmdata.track.name;
-        songdata.lastfm.artist = fmdata.track.artist.name;
-        songdata.lastfm.album = fmdata.track.album.title;
+        _this.gs.id = data.SongID;
+        _this.gs.name = data.SongName;
+        _this.gs.artist = data.ArtistName;
+        _this.gs.album = data.AlbumName;
+        _this.gs.url = data.Url;
+        return callback(null, _this);
+      });
+    };
+
+    SongData.create = function(name, artist, callback) {
+      var data, err, songdata, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      songdata = new SongData;
+      songdata.lastfm.name = name;
+      songdata.lastfm.artist = artist;
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          funcname: "SongData.create"
+        });
+        songdata.getLastFMData((__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              err = arguments[0];
+              return data = arguments[1];
+            };
+          })(),
+          lineno: 90
+        })));
+        __iced_deferrals._fulfill();
+      })(function() {
+        if (err) callback(err, songdata);
         (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
             parent: ___iced_passed_deferral,
             funcname: "SongData.create"
           });
-          gs.search(name, artist, (__iced_deferrals.defer({
+          songdata.getGroovesharkData((__iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
                 err = arguments[0];
-                return gsdata = arguments[1];
+                return data = arguments[1];
               };
             })(),
-            lineno: 62
+            lineno: 94
           })));
           __iced_deferrals._fulfill();
         })(function() {
-          if (err) {
-            callback(err, songdata);
-            return;
-          }
-          songdata.gs.id = gsdata.SongID;
-          songdata.gs.name = gsdata.SongName;
-          songdata.gs.artist = gsdata.ArtistName;
-          songdata.gs.album = gs.data.AlbumName;
-          songdata.gs.url = gs.data.Url;
+          if (err) callback(err, songdata);
           songdata.loaded = true;
           return callback(null, songdata);
         });
       });
     };
 
-    SongData.prototype.getSimilar = function(callback) {
-      var err, f, i, items, similar, track, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+    SongData.fromLastFMData = function(data) {
+      var songdata, _ref, _ref1, _ref2, _ref3;
+      songdata = new SongData;
+      console.log(data);
+      songdata.lastfm.id = data.mbid;
+      songdata.lastfm.name = data.name;
+      songdata.lastfm.artist = (_ref = (_ref1 = data.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
+      songdata.lastfm.album = (_ref2 = (_ref3 = data.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
+      return songdata;
+    };
+
+    SongData.fromGroovesharkData = function(data) {
+      var songdata;
+      songdata = new SongData;
+      songdata.gs.id = data.SongID;
+      songdata.gs.name = data.SongName;
+      songdata.gs.artist = data.ArtistName;
+      songdata.gs.album = data.AlbumName;
+      songdata.gs.url = data.Url;
+      return songdata;
+    };
+
+    SongData.prototype.getSimilar = function(limit, callback) {
+      var err, f, i, items, newdata, similar, track, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      f = new TrackFinder;
+      f = new SimilarTrackFinder(limit);
       (function(__iced_k) {
         __iced_deferrals = new iced.Deferrals(__iced_k, {
           parent: ___iced_passed_deferral,
           funcname: "SongData.getSimilar"
         });
-        f.find(_this.name, _this.artist, (__iced_deferrals.defer({
+        f.find(_this.lastfm.name, _this.lastfm.artist, (__iced_deferrals.defer({
           assign_fn: (function() {
             return function() {
               err = arguments[0];
               return similar = arguments[1];
             };
           })(),
-          lineno: 79
+          lineno: 126
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -201,6 +292,7 @@
           return [];
         }
         items = [];
+        console.log(similar);
         (function(__iced_k) {
           var _i, _len, _ref, _results, _while;
           _ref = similar.track;
@@ -224,19 +316,20 @@
               return _break();
             } else {
               track = _ref[i];
+              newdata = SongData.fromLastFMData(track);
               (function(__iced_k) {
                 __iced_deferrals = new iced.Deferrals(__iced_k, {
                   parent: ___iced_passed_deferral,
                   funcname: "SongData.getSimilar"
                 });
-                SongData.create(track.name, track.artist, (__iced_deferrals.defer({
+                newdata.getGroovesharkData((__iced_deferrals.defer({
                   assign_fn: (function(__slot_1, __slot_2) {
                     return function() {
                       err = arguments[0];
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 87
+                  lineno: 136
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -278,14 +371,14 @@
               parent: ___iced_passed_deferral,
               funcname: "SongNode.expand"
             });
-            _this.song.getSimilar((__iced_deferrals.defer({
+            _this.song.getSimilar(SongNode.maxChildren, (__iced_deferrals.defer({
               assign_fn: (function() {
                 return function() {
                   err = arguments[0];
                   return items = arguments[1];
                 };
               })(),
-              lineno: 104
+              lineno: 153
             })));
             __iced_deferrals._fulfill();
           })(function() {
@@ -310,11 +403,62 @@
         }
       })(function() {
         _this.expanded = true;
-        return callback(null, _this);
+        return typeof callback === "function" ? callback(null, _this) : void 0;
       });
     };
 
     return SongNode;
+
+  })();
+
+  root.SimilarTrackFinder = (function() {
+
+    SimilarTrackFinder.defaultLimit = 4;
+
+    function SimilarTrackFinder(limit) {
+      this.find = __bind(this.find, this);
+
+      this.findById = __bind(this.findById, this);
+      this.limit = limit != null ? limit : TrackFinder.defaultLimit;
+    }
+
+    SimilarTrackFinder.prototype.findById = function(mbid, callback) {
+      var _this = this;
+      return awaitable(lastfm.track.getSimilar)({
+        mbid: mbid,
+        limit: this.limit
+      }, function(err, data) {
+        if (err) {
+          return callback(err, null);
+        } else {
+          return callback.apply(null, _this.parseResult(data));
+        }
+      });
+    };
+
+    SimilarTrackFinder.prototype.find = function(name, artist, callback) {
+      var _this = this;
+      return awaitable(lastfm.track.getSimilar)({
+        track: name,
+        artist: artist,
+        autocorrect: 1,
+        limit: this.limit
+      }, function(err, data) {
+        if (err) {
+          return callback(err, null);
+        } else {
+          return callback.apply(null, _this.parseResult(data));
+        }
+      });
+    };
+
+    SimilarTrackFinder.prototype.parseResult = function(data) {
+      console.log('PARSING', data);
+      if (!('@attr' in data.similartracks)) return [404, 'Song not Found'];
+      return [null, data.similartracks];
+    };
+
+    return SimilarTrackFinder;
 
   })();
 

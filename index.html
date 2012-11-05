@@ -11,11 +11,16 @@
 
 	<script src="/cs465/js/d3.v2.js"></script>
 	<script src="/cs465/js/jquery.js"></script>
+	<script src="/cs465/js/modernizr.js"></script>
 	<script src="/cs465/js/prefixfree.js"></script>
 	<script src="/cs465/js/jquery.history.js"></script>
 	<script src="/cs465/js/lastfm/lastfm.api.js"></script>
 	<script src="/cs465/js/lastfm/lastfm.api.md5.js"></script>
+	<script src="/cs465/js/lastfm/lastfm.api.cache.js"></script>
 	
+	<script src="/cs465/js/feature-check.js"></script>
+	<script src="/cs465/js/grooveshark.js"></script>
+	<script src="/cs465/js/graph.js"></script>
 	<script src="/cs465/js/vine.js"></script>
 
 </head>
@@ -29,31 +34,57 @@
 		<div id="home-search" class="search-box">
 			<input type="text" placeholder="Search for a song"><input type="button" value="Search">
 		</div>
+		
+		<div id="features" style="display: none">
+			<h2>Whoops! Your browser might not like this site.</h2>
+			<p>
+				Your browser is missing one or more features upon which Audio Vine depends.<br>
+				You can continue, but we can't guarantee things will work. We recommend these browsers:
+			</p>
+			<ul id="supported-browsers">
+				<li><a href="http://www.google.com/chrome">
+					<img src="/cs465/img/chrome.svg">
+					Google Chrome
+				</a></li>
+				<li><a href="http://www.mozilla.org/firefox">
+					<img src="/cs465/img/firefox.png">
+					Mozilla Firefox
+				</a></li>
+				<li><a href="http://www.opera.com/browser/">
+					<img src="/cs465/img/opera.png">
+					Opera
+				</a></li>
+			</ul>
+			<h2>What features am I missing?</h2>
+			<ul id="missing-features"></ul>
+		</div>
 	</div>
 
 	<div class="view" id="view-search" style="display: none">
 		<header>
-			<h1>Pick a starting song</h1>
+			
 			<div id="search-search" class="search-box">
 				<input type="text" placeholder="Search for another song"><input type="button" value="Search">
 			</div>
+			<h1>Pick a starting song</h1>
 		</header>
 
-		<h2>Showing results for &ldquo;<span id="search-query"></span>&rdquo;</h2>
-		<div id="results-wrap">
-			<table id="search-results">
-				<thead>
-					<tr>
-						<th>Title</th><th>Artist</th><th>Album</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Testify</td><td>Rage Against the Machine</td><td>Testify</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		<h2 id="showing-results">
+			Showing results for &ldquo;<span class="search-query"></span>&rdquo;
+		</h2>
+		<h2 id="no-results" style="display: none">
+			Sorry, we couldn't find anything for &ldquo;<span class="search-query"></span>&rdquo;.
+			Try some different search terms.
+		</h2>
+		<div id="getting-results" class="loader" style="display: none"></div>
+		<table id="search-results">
+			<thead>
+				<tr>
+					<th>Title</th><th>Artist</th><th>Album</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
 	</div>
 
 	<div class="view" id="view-player" style="display: none">

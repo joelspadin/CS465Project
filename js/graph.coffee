@@ -7,23 +7,26 @@ awaitable = (func) ->
 	return (args..., callback) ->
 		func.apply this, args.concat 
 			success: (result) -> callback(null, result)
-			error: (err) -> callback(err, null)
+			error: (err) -> 
+				if arguments.length > 1
+					err = Array::slice.apply(arguments)
+				callback(err, null)
 
 class root.SongData
 	@property 'id',
 		get: -> this.lastfm.id
 
 	@property 'name',
-		get: -> this.lastfm.name
+		get: -> this.lastfm.name ? this.gs.name
 
 	@property 'artist',
-		get: -> this.lasftm.artist
+		get: -> this.lastfm.artist ? this.gs.artist
 
 	@property 'album',
-		get: -> this.lastfm.album
+		get: -> this.lastfm.album ? this.gs.album
 
 	@property 'art',
-		get -> null
+		get: -> null
 
 	constructor: () ->
 		this.loaded = false
@@ -33,6 +36,7 @@ class root.SongData
 			name: null
 			artist: null
 			album: null
+			url: null
 
 		this.gs = 
 			id: null
@@ -41,49 +45,94 @@ class root.SongData
 			album: null
 			url: null
 
-	@create: (name, artist, callback) ->
-		songdata = new SongData
-		await awaitable lastfm.track.getInfo
-			track: name,
-			artist: artist ? null
+	getLastFMData: (callback) =>
+		await awaitable(lastfm.track.getInfo)
+			track: this.name,
+			artist: this.artist ? null
 			autocorrect: 1
-		, (defer err, fmdata)
+		, (defer err, data)
 
 		if err
-			callback err, songdata
+			callback err, this
 			return
 		
-		songdata.lastfm.id = fmdata.track.mbid
-		songdata.lastfm.name = fmdata.track.name
-		songdata.lastfm.artist = fmdata.track.artist.name
-		songdata.lastfm.album = fmdata.track.album.title
+		console.log data
 
-		await gs.search name, artist, (defer err, gsdata)
+		this.lastfm.id = data.track.id
+		this.lastfm.name = data.track.name
+		this.lastfm.artist = data.track.artist?.name ? null
+		this.lastfm.album = data.track.album?.title ? null
+		this.lastfm.url = data.track.url
+
+		callback null, this
+
+	getGroovesharkData: (callback) =>
+		await root.gs.search "#{this.name} #{this.artist}", (defer err, data)
 
 		if err
-			callback err, songdata
+			callback err, this
 			return
 
-		songdata.gs.id = gsdata.SongID
-		songdata.gs.name = gsdata.SongName
-		songdata.gs.artist = gsdata.ArtistName
-		songdata.gs.album = gs.data.AlbumName
-		songdata.gs.url = gs.data.Url
+		this.gs.id = data.SongID
+		this.gs.name = data.SongName
+		this.gs.artist = data.ArtistName
+		this.gs.album = data.AlbumName
+		this.gs.url = data.Url
+
+		callback null, this
+
+	@create: (name, artist, callback) ->
+		songdata = new SongData
+		
+		songdata.lastfm.name = name
+		songdata.lastfm.artist = artist
+
+		await songdata.getLastFMData (defer err, data)
+		if err
+			callback err, songdata
+
+		await songdata.getGroovesharkData (defer err, data)
+		if err
+			callback err, songdata
 
 		songdata.loaded = true
 		callback null, songdata
+
+	@fromLastFMData: (data) ->
+		songdata = new SongData
+
+		console.log data
+		songdata.lastfm.id = data.mbid
+		songdata.lastfm.name = data.name
+		songdata.lastfm.artist = data.artist?.name ? null
+		songdata.lastfm.album = data.album?.title ? null
+		return songdata
+
+	@fromGroovesharkData: (data) ->
+		songdata = new SongData
+
+		songdata.gs.id = data.SongID
+		songdata.gs.name = data.SongName
+		songdata.gs.artist = data.ArtistName
+		songdata.gs.album = data.AlbumName
+		songdata.gs.url = data.Url
+		
+		return songdata
+
 			
-	getSimilar: (callback) =>
-		f = new TrackFinder
-		await f.find this.name, this.artist, (defer err, similar)
+	getSimilar: (limit, callback) =>
+		f = new SimilarTrackFinder(limit)
+		await f.find this.lastfm.name, this.lastfm.artist, (defer err, similar)
 
 		if err
 			console.log err
 			return []
 
 		items = []
+		console.log similar
 		for track, i in similar.track
-			await SongData.create track.name, track.artist, (defer err, items[i])
+			newdata = SongData.fromLastFMData(track)
+			await newdata.getGroovesharkData (defer err, items[i])
 
 		callback null, items
 
@@ -101,7 +150,7 @@ class root.SongNode
 	expand: (callback) =>
 		if not this.expanded
 			items = []
-			await this.song.getSimilar (defer err, items)
+			await this.song.getSimilar SongNode.maxChildren, (defer err, items)
 			this.children = (new SongNode(item, this) for item in items)
 
 			# filter out items that are the same as this node's parent so
@@ -113,6 +162,41 @@ class root.SongNode
 			this.children = this.children.slice(0, SongNode.maxChildren)
 
 		this.expanded = true
-		callback(null, this)
+		callback?(null, this)
 
 
+class root.SimilarTrackFinder
+	@defaultLimit: 4
+	
+	constructor: (limit) ->
+		this.limit = limit ? TrackFinder.defaultLimit
+
+	findById: (mbid, callback) =>
+		awaitable(lastfm.track.getSimilar)
+			mbid: mbid
+			limit: this.limit
+		, (err, data) =>
+			if err
+				callback err, null
+			else
+				callback this.parseResult(data)...
+
+	find: (name, artist, callback) =>
+		awaitable(lastfm.track.getSimilar)
+			track: name
+			artist: artist
+			autocorrect: 1
+			limit: this.limit
+		, (err, data) =>
+			if err
+				callback err, null
+			else
+				callback this.parseResult(data)...
+
+	parseResult: (data) ->
+		console.log 'PARSING', data
+		if not ('@attr' of data.similartracks)
+			return [404, 'Song not Found']
+
+		return [null, data.similartracks]
+			

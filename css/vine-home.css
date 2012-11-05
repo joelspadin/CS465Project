@@ -1,4 +1,7 @@
 #view-home {
+  max-width: 700px;
+  padding: 0 20px;
+  margin: 0 auto;
   text-align: center;
 }
 #view-home h1 {
@@ -9,4 +12,29 @@
 }
 #view-home .search-box {
   margin: 2em auto;
+}
+#view-home #features {
+  text-align: left;
+}
+#view-home #supported-browsers {
+  list-style: none;
+  overflow: auto;
+  width: 504px;
+  padding: 0;
+  margin: 2em auto;
+}
+#view-home #supported-browsers li {
+  float: left;
+  padding: 0 20px;
+  text-align: center;
+}
+#view-home #supported-browsers img {
+  display: block;
+  width: 128px;
+  height: 128px;
+}
+@media (max-width: 540px) {
+  #view-home .search-box {
+    width: 100%;
+  }
 }

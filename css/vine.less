@@ -4,6 +4,9 @@ body {
 	font: 16px/20px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
 	color: @c-text;
 	background-color: @c-background;
+
+	margin: 0;
+	padding: 0;
 }
 
 h1 {
@@ -20,6 +23,22 @@ h2 {
 * {
 	box-sizing: border-box;
 }
+
+// Keep IE from putting a border around image links
+a img {
+	border: none;
+}
+
+
+table {
+	border-spacing: 0;
+	border-radius: @corner-radius;
+}
+
+ul {
+	padding-left: 20px;
+}
+
 
 // Search Box
 
@@ -47,17 +66,20 @@ h2 {
 	}
 
 	input[type=text] {
-		width: (@search-width - @submit-width - 2);
+		width: 100%;
+		padding-right: @submit-width;
 	}
 
 	input[type=button] {
+		margin-left: -@submit-width;
 		width: @submit-width;
 		text-indent: -9999px;
 
 		outline: none;
+		cursor: pointer;
 		background: @c-input-background url('../img/search.png') center no-repeat;
 
-		transition: background-color 0.1s;
+		transition: background-color 0.08s;
 
 		&:hover {
 			background-color: @c-button-hover;
@@ -70,3 +92,46 @@ h2 {
 }
 
 
+
+.loader {
+	margin: 1em auto;
+
+	width: (8px + 12px) * 8;
+
+	div {
+		float: left;
+		width: 8px;
+		height: 8px;
+		margin: 6px;
+		border-radius: 4px;
+
+		animation-name: loadingProgress;
+		animation-duration: 2.4s;
+		animation-iteration-count: infinite;
+	}
+
+	div:nth-child(1) { animation-delay: 0.4s; }
+	div:nth-child(2) { animation-delay: 0.6s; }
+	div:nth-child(3) { animation-delay: 0.8s; }
+	div:nth-child(4) { animation-delay: 1.0s; }
+	div:nth-child(5) { animation-delay: 1.2s; }
+	div:nth-child(6) { animation-delay: 1.4s; }
+	div:nth-child(7) { animation-delay: 1.6s; }
+	div:nth-child(8) { animation-delay: 1.8s; }
+
+}
+
+
+@keyframes loadingProgress {
+	0% {
+		background-color: @c-progress;
+	}
+
+	80% {
+		background-color: @c-background;
+	}
+
+	100% {
+		background-color: @c-background;
+	}
+}

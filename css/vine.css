@@ -2,6 +2,8 @@ body {
   font: 16px/20px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
   color: #000000;
   background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
 }
 h1 {
   font-weight: 400;
@@ -14,6 +16,16 @@ h2 {
 }
 * {
   box-sizing: border-box;
+}
+a img {
+  border: none;
+}
+table {
+  border-spacing: 0;
+  border-radius: 3px;
+}
+ul {
+  padding-left: 20px;
 }
 .search-box {
   width: 480px;
@@ -31,18 +43,70 @@ h2 {
   border: none;
 }
 .search-box input[type=text] {
-  width: 438px;
+  width: 100%;
+  padding-right: 40px;
 }
 .search-box input[type=button] {
+  margin-left: -40px;
   width: 40px;
   text-indent: -9999px;
   outline: none;
+  cursor: pointer;
   background: #ffffff url('../img/search.png') center no-repeat;
-  transition: background-color 0.1s;
+  transition: background-color 0.08s;
 }
 .search-box input[type=button]:hover {
-  background-color: #eeeeee;
+  background-color: #c0dcf1;
 }
 .search-box input[type=button]:active {
-  background-color: #cccccc;
+  background-color: #3372f1;
+}
+.loader {
+  margin: 1em auto;
+  width: 160px;
+}
+.loader div {
+  float: left;
+  width: 8px;
+  height: 8px;
+  margin: 6px;
+  border-radius: 4px;
+  animation-name: loadingProgress;
+  animation-duration: 2.4s;
+  animation-iteration-count: infinite;
+}
+.loader div:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.loader div:nth-child(2) {
+  animation-delay: 0.6s;
+}
+.loader div:nth-child(3) {
+  animation-delay: 0.8s;
+}
+.loader div:nth-child(4) {
+  animation-delay: 1.0s;
+}
+.loader div:nth-child(5) {
+  animation-delay: 1.2s;
+}
+.loader div:nth-child(6) {
+  animation-delay: 1.4s;
+}
+.loader div:nth-child(7) {
+  animation-delay: 1.6s;
+}
+.loader div:nth-child(8) {
+  animation-delay: 1.8s;
+}
+@keyframes loadingProgress {
+  0% {
+    background-color: #000000;
+  }
+  80% {
+    background-color: #f0f0f0;
+  }
+  100% {
+    background-color: #f0f0f0;
+  }
 }
