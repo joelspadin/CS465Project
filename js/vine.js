@@ -257,7 +257,7 @@
       var _this = this;
       this.elem = $(elem);
       this.input = this.elem.find('input[type=text]');
-      this.submit = this.elem.find('intput[type=button]');
+      this.submit = this.elem.find('input[type=button]');
       this.input.keypress(function(e) {
         if (e.which === 13) return _this.go();
       });
@@ -268,7 +268,7 @@
 
     SearchBox.property('query', {
       get: function() {
-        return this.input.val();
+        return this.input.val().trim();
       },
       set: function(q) {
         return this.input.val(q);
@@ -276,7 +276,9 @@
     });
 
     SearchBox.prototype.go = function() {
-      return vine.search(this.query);
+      if (this.query.trim() === '') return;
+      vine.search(this.query);
+      return this.query = '';
     };
 
     return SearchBox;

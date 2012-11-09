@@ -376,7 +376,7 @@
       this.song = songdata;
       this.parent = parent != null ? parent : null;
       this.children = [];
-      this.expanded = false;
+      this._expanded = false;
     }
 
     SongNode.prototype.expand = function(callback) {
@@ -385,7 +385,7 @@
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       (function(__iced_k) {
-        if (!_this.expanded) {
+        if (!_this._expanded) {
           items = [];
           (function(__iced_k) {
             __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -423,7 +423,7 @@
           return __iced_k();
         }
       })(function() {
-        _this.expanded = true;
+        _this._expanded = true;
         return typeof callback === "function" ? callback(null, _this) : void 0;
       });
     };

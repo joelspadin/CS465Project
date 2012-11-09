@@ -1,4 +1,12 @@
-﻿#view-player {
+﻿@import "colors.less";
+
+#view-player {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
 	#vine {
 		position: absolute;
 		top: 0;
@@ -11,5 +19,106 @@
 	.control {
 		position: absolute;
 		z-index: 1000;
+	}
+
+	@search-width: 110px;
+	@search-width-expanded: 170px;
+	@submit-width: 16px;
+
+	.search-box {
+		top: 4px;
+		right: 4px;
+		width: auto;
+
+		input {
+			font-size: 14px;
+			width: @search-width;
+			padding-right: @submit-width;
+
+			transition: width 0.3s;
+
+			&:active, &:focus {
+				width: @search-width-expanded;
+			}
+		}
+		
+
+		input[type=button] {
+			margin-left: -@submit-width;
+			width: @submit-width;
+
+			background-image: url('../img/search-small.png');
+		}
+	}
+
+	@controlbar-width: 500px;
+
+	#player-controls {
+		left: 50%;
+		bottom: 16px;
+		width: @controlbar-width;
+		margin-left: -(@controlbar-width / 2);
+		padding: 8px 16px;
+
+		background: rgba(0,0,0, 0.9);
+		color: #fff;
+
+		border-radius: @player-corner-radius;
+
+		img {
+			width: 48px;
+			height: 48px;
+			margin: 0 4px 0 8px;
+			vertical-align: bottom;
+		}
+
+		div {
+			display: inline-block;
+		}
+		
+		@button-width: 26px;
+		.button {
+			display: inline-block;
+			width: @button-width;
+			height: 48px;
+			vertical-align: bottom;
+
+			background: transparent -(48px - @button-width)/2 0 no-repeat;
+			cursor: pointer;
+
+			&:hover {
+				background-position: (-48px - (48px - @button-width)/2) 0;
+			}
+
+			&:active {
+				background-position: (-96px - (48px - @button-width)/2) 0;
+			}
+		}
+
+		#player-info,
+		#player-time {
+			display: block;
+			height: 24px;
+		}
+
+		#btn-favorite {
+			background-image: url('../img/heart.svg');
+		}
+
+		#btn-prev {
+			background-image: url('../img/prev.svg');
+		}
+
+		#btn-playpause {
+			background-image: url('../img/play.svg');
+		}
+
+		#btn-playpause.pause {
+			background-image: url('../img/pause.svg');
+		}
+
+		#btn-next {
+			background-image: url('../img/next.svg');
+		}
 	}
 }

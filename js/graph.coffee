@@ -158,10 +158,10 @@ class root.SongNode
 		this.parent = parent ? null
 
 		this.children = []
-		this.expanded = false
+		this._expanded = false
 
 	expand: (callback) =>
-		if not this.expanded
+		if not this._expanded
 			items = []
 			await this.song.getSimilar SongNode.maxChildren, (defer err, items)
 			this.children = (new SongNode(item, this) for item in items)
@@ -174,7 +174,7 @@ class root.SongNode
 
 			this.children = this.children.slice(0, SongNode.maxChildren)
 
-		this.expanded = true
+		this._expanded = true
 		callback?(null, this)
 
 

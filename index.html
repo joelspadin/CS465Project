@@ -43,7 +43,7 @@
 			</p>
 			<ul id="supported-browsers">
 				<li><a href="http://www.google.com/chrome">
-					<img src="/cs465/img/chrome.svg">
+					<img src="/cs465/img/chrome.png">
 					Google Chrome
 				</a></li>
 				<li><a href="http://www.mozilla.org/firefox">
@@ -88,10 +88,34 @@
 	</div>
 
 	<div class="view" id="view-player" style="display: none">
+
 		<div id="vine"></div>
+
 		<div id="player-controls" class="control">
-			Yay. Player controls!
+			<a id="btn-favorite" class="button"></a>
+			<a id="btn-prev" class="button"></a>
+			<a id="btn-playpause" class="button"></a>
+			<a id="btn-next" class="button"></a>
+			<img src="/cs465/img/no-album.svg" id="album-art">
+			<div>
+				<div id="player-info">
+					<span id="song-name">Song Title</span> by <span id="artist-name">Artist</span>
+				</div>
+				<div id="player-time">
+					<span id="current-time"></span>
+					<input type="range" id="ctrl-seek">
+					<span id="total-time"></span>
+				</div>
+			</div>
+			<div id="ctrl-volume"></div>
 		</div>
+
+		<div id="player-search" class="search-box control">
+			<input type="text" placeholder="New search"><input type="button" value="Search">
+		</div>
+
+		<a id="btn-zoom" class="control"></a>
+
 	</div>
 </body>
 </html>

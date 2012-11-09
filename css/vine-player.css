@@ -1,3 +1,10 @@
+#view-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
 #view-player #vine {
   position: absolute;
   top: 0;
@@ -9,4 +16,77 @@
 #view-player .control {
   position: absolute;
   z-index: 1000;
+}
+#view-player .search-box {
+  top: 4px;
+  right: 4px;
+  width: auto;
+}
+#view-player .search-box input {
+  font-size: 14px;
+  width: 110px;
+  padding-right: 16px;
+  transition: width 0.3s;
+}
+#view-player .search-box input:active,
+#view-player .search-box input:focus {
+  width: 170px;
+}
+#view-player .search-box input[type=button] {
+  margin-left: -16px;
+  width: 16px;
+  background-image: url('../img/search-small.png');
+}
+#view-player #player-controls {
+  left: 50%;
+  bottom: 16px;
+  width: 500px;
+  margin-left: -250px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  border-radius: 8px;
+}
+#view-player #player-controls img {
+  width: 48px;
+  height: 48px;
+  margin: 0 4px 0 8px;
+  vertical-align: bottom;
+}
+#view-player #player-controls div {
+  display: inline-block;
+}
+#view-player #player-controls .button {
+  display: inline-block;
+  width: 26px;
+  height: 48px;
+  vertical-align: bottom;
+  background: transparent -11px 0 no-repeat;
+  cursor: pointer;
+}
+#view-player #player-controls .button:hover {
+  background-position: -59px 0;
+}
+#view-player #player-controls .button:active {
+  background-position: -107px 0;
+}
+#view-player #player-controls #player-info,
+#view-player #player-controls #player-time {
+  display: block;
+  height: 24px;
+}
+#view-player #player-controls #btn-favorite {
+  background-image: url('../img/heart.svg');
+}
+#view-player #player-controls #btn-prev {
+  background-image: url('../img/prev.svg');
+}
+#view-player #player-controls #btn-playpause {
+  background-image: url('../img/play.svg');
+}
+#view-player #player-controls #btn-playpause.pause {
+  background-image: url('../img/pause.svg');
+}
+#view-player #player-controls #btn-next {
+  background-image: url('../img/next.svg');
 }

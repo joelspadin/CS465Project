@@ -176,9 +176,9 @@ Function::property = (prop, desc) ->
 # Attaches search events to a search box element
 class SearchBox
 	constructor: (elem) ->
-		@elem = $ elem
+		@elem = $(elem)
 		@input = @elem.find 'input[type=text]'
-		@submit = @elem.find 'intput[type=button]'
+		@submit = @elem.find 'input[type=button]'
 
 		@input.keypress (e) =>
 			if e.which == 13
@@ -187,11 +187,14 @@ class SearchBox
 		@submit.click => @go()
 
 	@property 'query',
-		get: -> @input.val()
+		get: -> @input.val().trim()
 		set: (q) -> @input.val(q)
 
 	go: ->
+		if @query.trim() == ''
+			return
 		vine.search(@query)
+		@query = ''
 		
 
 # Gets a relative path from 'base' to 'path'
