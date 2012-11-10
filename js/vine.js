@@ -135,7 +135,6 @@
           });
           for (_i = 0, _len = candidates.length; _i < _len; _i++) {
             result = candidates[_i];
-            console.log('Getting LastFM data for', result);
             data = SongData.fromGroovesharkData(result);
             data.getLastFMData((__iced_deferrals.defer({
               assign_fn: (function() {

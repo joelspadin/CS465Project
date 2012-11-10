@@ -80,7 +80,7 @@ root.vine =
 		await gs.search query, vine.maxSearchResults, (defer err, candidates)
 
 		await for result in candidates
-			console.log 'Getting LastFM data for', result
+			#console.log 'Getting LastFM data for', result
 			data = SongData.fromGroovesharkData(result)
 			data.getLastFMData (defer err)
 			if not err

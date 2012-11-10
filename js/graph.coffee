@@ -65,7 +65,7 @@ class root.SongData
 		this.lastfm.name = data.track.name
 		this.lastfm.artist = data.track.artist?.name ? null
 		this.lastfm.album = data.track.album?.title ? null
-		this.lastfm.albumArt = SongData.parseLastFMImage(data.track.album?.image)
+		this.lastfm.albumArt = SongData.parseLastFMImage(data.track.album?.image ? data.image)
 		this.lastfm.url = data.track.url
 
 		callback null, this
@@ -109,12 +109,12 @@ class root.SongData
 	@fromLastFMData: (data) ->
 		songdata = new SongData
 
-		#console.log data
+		console.log data
 		songdata.lastfm.id = data.mbid
 		songdata.lastfm.name = data.name
 		songdata.lastfm.artist = data.artist?.name ? null
 		songdata.lastfm.album = data.album?.title ? null
-		songdata.lastfm.albumArt = SongData.parseLastFMImage(data.album?.image)
+		songdata.lastfm.albumArt = SongData.parseLastFMImage(data.album?.image ? data.image)
 		return songdata
 
 	@fromGroovesharkData: (data) ->
@@ -146,7 +146,7 @@ class root.SongData
 			return []
 
 		items = []
-		console.log similar
+		console.log 'SIMILAR', similar
 		for track, i in similar.track
 			newdata = SongData.fromLastFMData(track)
 			await newdata.getGroovesharkData (defer err, items[i])

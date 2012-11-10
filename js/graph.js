@@ -154,7 +154,7 @@
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        var _ref, _ref1, _ref2, _ref3, _ref4;
+        var _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
         if (err) {
           callback(err, _this);
           return;
@@ -163,7 +163,7 @@
         _this.lastfm.name = data.track.name;
         _this.lastfm.artist = (_ref = (_ref1 = data.track.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
         _this.lastfm.album = (_ref2 = (_ref3 = data.track.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
-        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = data.track.album) != null ? _ref4.image : void 0);
+        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = (_ref5 = data.track.album) != null ? _ref5.image : void 0) != null ? _ref4 : data.image);
         _this.lastfm.url = data.track.url;
         return callback(null, _this);
       });
@@ -256,13 +256,14 @@
     };
 
     SongData.fromLastFMData = function(data) {
-      var songdata, _ref, _ref1, _ref2, _ref3, _ref4;
+      var songdata, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       songdata = new SongData;
+      console.log(data);
       songdata.lastfm.id = data.mbid;
       songdata.lastfm.name = data.name;
       songdata.lastfm.artist = (_ref = (_ref1 = data.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
       songdata.lastfm.album = (_ref2 = (_ref3 = data.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
-      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = data.album) != null ? _ref4.image : void 0);
+      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = (_ref5 = data.album) != null ? _ref5.image : void 0) != null ? _ref4 : data.image);
       return songdata;
     };
 
@@ -315,7 +316,7 @@
           return [];
         }
         items = [];
-        console.log(similar);
+        console.log('SIMILAR', similar);
         (function(__iced_k) {
           var _i, _len, _ref, _results, _while;
           _ref = similar.track;
