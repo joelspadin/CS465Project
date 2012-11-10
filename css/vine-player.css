@@ -53,7 +53,7 @@
   margin: 0 4px 0 8px;
   vertical-align: bottom;
 }
-#view-player #player-controls div {
+#view-player #player-controls div.info {
   display: inline-block;
 }
 #view-player #player-controls .button {
@@ -70,11 +70,6 @@
 #view-player #player-controls .button:active {
   background-position: -107px 0;
 }
-#view-player #player-controls #player-info,
-#view-player #player-controls #player-time {
-  display: block;
-  height: 24px;
-}
 #view-player #player-controls #btn-favorite {
   background-image: url('../img/heart.svg');
 }
@@ -89,4 +84,36 @@
 }
 #view-player #player-controls #btn-next {
   background-image: url('../img/next.svg');
+}
+#view-player #player-controls .ui-slider-handle {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#view-player #player-controls .ui-state-focus.ui-slider-handle {
+  opacity: 1;
+}
+#view-player #player-controls #player-info {
+  height: 24px;
+}
+#view-player #player-controls #player-time {
+  height: 23px;
+  margin-top: 1px;
+  font-size: 11px;
+}
+#view-player #player-controls #player-time span {
+  display: inline-block;
+  width: 28px;
+}
+#view-player #player-controls #player-time #current-time {
+  margin-right: 3px;
+}
+#view-player #player-controls #player-time #total-time {
+  margin-left: 3px;
+}
+#view-player #player-controls #player-time #ctrl-seek {
+  width: 184px;
+  display: inline-block;
+}
+#view-player #player-controls #player-time:hover .ui-slider-handle {
+  opacity: 1;
 }

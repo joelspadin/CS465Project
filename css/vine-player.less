@@ -72,7 +72,7 @@
 			vertical-align: bottom;
 		}
 
-		div {
+		div.info {
 			display: inline-block;
 		}
 		
@@ -95,11 +95,7 @@
 			}
 		}
 
-		#player-info,
-		#player-time {
-			display: block;
-			height: 24px;
-		}
+		
 
 		#btn-favorite {
 			background-image: url('../img/heart.svg');
@@ -120,5 +116,49 @@
 		#btn-next {
 			background-image: url('../img/next.svg');
 		}
+
+		.ui-slider-handle {
+			opacity: 0;
+			transition: opacity 0.2s;
+		}
+
+		.ui-state-focus.ui-slider-handle {
+			opacity: 1;
+		}
+
+		#player-info{
+			height: 24px;
+		}
+
+		#player-time {
+			height: 23px;
+			margin-top: 1px;
+
+			font-size: 11px;
+
+			span {
+				display: inline-block;
+				width: 28px;
+			}
+
+			#current-time {
+				margin-right: 3px;
+			}
+
+			#total-time {
+				margin-left: 3px;
+			}
+
+			#ctrl-seek {
+				width: @controlbar-width - 32px - (@button-width * 4) - 60px - (32px * 2) - 32px - 24px;
+				display: inline-block;
+			}
+
+			&:hover .ui-slider-handle {
+				opacity: 1;
+			}
+		}
+
+		
 	}
 }

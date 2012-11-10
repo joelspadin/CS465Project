@@ -1,6 +1,7 @@
 (function() {
-  var History, SearchBox, VinePlayer, iced, relpath, root, __iced_k, __iced_k_noop,
-    __slice = [].slice;
+  var History, SearchBox, VinePlayer, formatTime, iced, relpath, root, __iced_k, __iced_k_noop,
+    __slice = [].slice,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   iced = {
     Deferrals: (function() {
@@ -254,15 +255,17 @@
   };
 
   VinePlayer = (function() {
-    var lastIntervalTime, playedSongs, playing, position, positionTimer, queue, volume;
+    var currentSong, duration, lastIntervalTime, playedSongs, playing, position, positionTimer, queue, volume;
 
     volume = 1;
 
     playing = false;
 
-    VinePlayer.prototype.currentSong = null;
+    currentSong = null;
 
     position = 0;
+
+    duration = 0;
 
     positionTimer = -1;
 
@@ -273,6 +276,37 @@
     playedSongs = [];
 
     function VinePlayer() {
+      this.playPrevious = __bind(this.playPrevious, this);
+
+      this.playNext = __bind(this.playNext, this);
+
+      this.wasPlayed = __bind(this.wasPlayed, this);
+
+      this.isQueued = __bind(this.isQueued, this);
+
+      this.enqueueAutomaticSong = __bind(this.enqueueAutomaticSong, this);
+
+      this.dequeue = __bind(this.dequeue, this);
+
+      this.enqueue = __bind(this.enqueue, this);
+
+      this.seek = __bind(this.seek, this);
+
+      this.pause = __bind(this.pause, this);
+
+      this.play = __bind(this.play, this);
+
+      this.updatePosition = __bind(this.updatePosition, this);
+
+      this._startUpdate = __bind(this._startUpdate, this);
+
+      this._stopUpdate = __bind(this._stopUpdate, this);
+
+      this._interval = __bind(this._interval, this);
+
+      this.init = __bind(this.init, this);
+
+      var _this = this;
       this.elems = {
         favorite: $('#btn-favorite'),
         prev: $('#btn-prev'),
@@ -282,14 +316,43 @@
         song: $('#song-name'),
         artist: $('#artist-name'),
         currentTime: $('#current-time'),
+        totalTime: $('#total-time'),
         seek: $('#ctrl-seek'),
         volume: $('#ctrl-volume')
       };
       this.goBackThreshold = 3;
+      this.elems.playpause.click(function(e) {
+        if (_this.playing) {
+          return _this.pause();
+        } else {
+          return _this.play();
+        }
+      });
+      this.elems.prev.click(function(e) {
+        return _this.playPrevious();
+      });
+      this.elems.next.click(function(e) {
+        return _this.playNext();
+      });
+      this.elems.seek.slider({
+        range: 'min',
+        min: 0,
+        max: 0,
+        value: 0,
+        slide: function(e, ui) {
+          return _this.elems.currentTime.text(formatTime(ui.value));
+        },
+        start: function(e, ui) {
+          return _this._stopUpdate();
+        },
+        stop: function(e, ui) {
+          _this.seek(ui.value);
+          if (_this.playing) return _this._startUpdate();
+        }
+      });
     }
 
     VinePlayer.prototype.init = function(firstSong) {
-      var currentSong;
       queue = [];
       playedSongs = [];
       currentSong = firstSong;
@@ -300,13 +363,26 @@
     VinePlayer.prototype._interval = function() {
       var delta, now;
       now = Date.now();
-      delta = (lastIntervalTime - now) / 1000;
+      delta = (now - lastIntervalTime) / 1000;
       lastIntervalTime = now;
       return this.updatePosition(this.position + delta);
     };
 
+    VinePlayer.prototype._stopUpdate = function() {
+      return window.clearInterval(positionTimer);
+    };
+
+    VinePlayer.prototype._startUpdate = function() {
+      lastIntervalTime = Date.now();
+      return positionTimer = window.setInterval(this._interval, 500);
+    };
+
     VinePlayer.prototype.updatePosition = function(time) {
-      return position = time;
+      position = time;
+      this.elems.seek.slider({
+        value: time
+      });
+      return this.elems.currentTime.text(formatTime(time));
     };
 
     VinePlayer.property('volume', {
@@ -344,6 +420,19 @@
       }
     });
 
+    VinePlayer.property('duration', {
+      get: function() {
+        return duration;
+      },
+      set: function(val) {
+        duration = val;
+        this.elems.seek.slider({
+          max: val
+        });
+        return this.elems.totalTime.text(formatTime(val));
+      }
+    });
+
     VinePlayer.property('queue', {
       get: function() {
         return queue;
@@ -358,22 +447,21 @@
 
     VinePlayer.prototype.play = function() {
       if (!this.playing) {
-        lastIntervalTime = Date.now();
-        window.clearInterval(positionTimer);
-        positionTimer = window.setInterval(this._inverval, 300);
+        this._stopUpdate();
+        this._startUpdate();
         return this.playing = true;
       }
     };
 
     VinePlayer.prototype.pause = function() {
       if (this.playing) {
-        window.clearInterval(positionTimer);
+        this._stopUpdate();
         return this.playing = false;
       }
     };
 
     VinePlayer.prototype.seek = function(time) {
-      return updatePosition(time);
+      return this.updatePosition(time);
     };
 
     VinePlayer.prototype.enqueue = function(songnode) {
@@ -398,7 +486,7 @@
     };
 
     VinePlayer.prototype.playNext = function() {
-      var currentSong, lastPlayed;
+      var lastPlayed;
       lastPlayed = currentSong;
       currentSong = queue.shift();
       if (this.currentSong != null) {
@@ -412,7 +500,6 @@
     };
 
     VinePlayer.prototype.playPrevious = function() {
-      var currentSong;
       if (playedSongs.length > 0 && position < this.goBackThreshold) {
         queue.unshift(currentSong);
         currentSong = playedSongs.pop();
@@ -483,6 +570,13 @@
       path.unshift('..');
     }
     return path.join('/');
+  };
+
+  formatTime = function(time) {
+    var mins, secs;
+    mins = Math.floor(time / 60).toString();
+    secs = Math.round(time % 60).toString();
+    return '00'.substr(mins.length) + mins + ':' + '00'.substr(secs.length) + secs;
   };
 
   String.prototype.partition = function(sep) {

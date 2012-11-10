@@ -187,10 +187,11 @@ Function::property = (prop, desc) ->
 class VinePlayer
 	volume = 1
 	playing = false
-	currentSong: null
+	currentSong = null
 
 	# current time in seconds
 	position = 0
+	duration = 0
 	positionTimer = -1
 	lastIntervalTime = 0
 
@@ -209,13 +210,45 @@ class VinePlayer
 			song: $ '#song-name'
 			artist: $ '#artist-name'
 			currentTime: $ '#current-time'
+			totalTime: $ '#total-time'
 			seek: $ '#ctrl-seek'
 			volume: $ '#ctrl-volume'
 
 		@goBackThreshold = 3
 
+		@elems.playpause.click (e) =>
+			if @playing
+				@pause()
+			else
+				@play()
+
+		@elems.prev.click (e) =>
+			@playPrevious()
+
+		@elems.next.click (e) =>
+			@playNext()
+
+		@elems.seek.slider
+			range: 'min'
+			min: 0
+			max: 0
+			value: 0
+			slide: (e, ui) =>
+				# change the time text while sliding
+				@elems.currentTime.text formatTime(ui.value)
+			start: (e, ui) =>
+				# stop moving the slider when the user grabs it
+				@_stopUpdate()
+			stop: (e, ui) =>
+				# finalize the seek and start moving the slider again when it is released
+				@seek(ui.value)
+				if @playing
+					@_startUpdate()
+
+				
+
 	# resets the player starting with a given song
-	init: (firstSong) ->
+	init: (firstSong) =>
 		queue = []
 		playedSongs = []
 		currentSong = firstSong
@@ -223,16 +256,24 @@ class VinePlayer
 		@play()
 
 	# timer to keep incrementing position while not receiving status messages
-	_interval: ->
+	_interval: =>
 		now = Date.now()
-		delta = (lastIntervalTime - now) / 1000
+		delta = (now - lastIntervalTime) / 1000
 		lastIntervalTime = now
 		@updatePosition(@position + delta)
 
+	_stopUpdate: =>
+		window.clearInterval(positionTimer)
+
+	_startUpdate: =>
+		lastIntervalTime = Date.now()
+		positionTimer = window.setInterval(@_interval, 500)
+
 	# sets the position of the seeker control
-	updatePosition: (time) ->
+	updatePosition: (time) =>
 		position = time
-		# TODO: update seek control
+		@elems.seek.slider { value: time }
+		@elems.currentTime.text formatTime(time)
 
 	@property 'volume',
 		get: -> volume
@@ -256,53 +297,59 @@ class VinePlayer
 	@property 'position',
 		get: -> position
 
+	@property 'duration',
+		get: -> duration
+		set: (val) ->
+			duration = val
+			@elems.seek.slider { max: val }
+			@elems.totalTime.text formatTime(val)
+
 	@property 'queue',
 		get: -> queue
 
 	@property 'playedSongs',
 		get: -> playedSongs
 
-	play: ->
+	play: =>
 		if not @playing
-			lastIntervalTime = Date.now()
-			window.clearInterval(positionTimer)
-			positionTimer = window.setInterval(@_inverval, 300)
+			@_stopUpdate()
+			@_startUpdate()
 			# TODO: start playing
 			@playing = true
 
-	pause: ->
+	pause: =>
 		if @playing
-			window.clearInterval(positionTimer)
+			@_stopUpdate()
 			# TODO: stop playing
 			@playing = false
 
-	seek: (time) ->
-		updatePosition(time)
+	seek: (time) =>
+		@updatePosition(time)
 		# TODO: seek to position in song
 
-	enqueue: (songnode) ->
+	enqueue: (songnode) =>
 		queue.remove(songnode)
 		queue.push(songnode)
 		# TODO: update graph
 
-	dequeue: (songnode) ->
+	dequeue: (songnode) =>
 		queue.remove(songnode)
 		# TODO: update graph
 
-	enqueueAutomaticSong: () ->
+	enqueueAutomaticSong: () =>
 		# TODO: find automatically selected song
 		@enqueue(null)
 
 	# gets whether a song is in the queue
-	isQueued: (songnode) ->
+	isQueued: (songnode) =>
 		return queue.contains(songnode)
 
 	# gets whether a song was previously played
-	wasPlayed: (songnode) ->
+	wasPlayed: (songnode) =>
 		return playedSongs.contains(songnode)
 
 	# moves to the next queued song
-	playNext: ->
+	playNext: =>
 		lastPlayed = currentSong
 		currentSong = queue.shift()
 		if @currentSong?
@@ -314,7 +361,7 @@ class VinePlayer
 			@playNext()
 
 	# restarts the current song or plays the previously played song
-	playPrevious: ->
+	playPrevious: =>
 		if playedSongs.length > 0 and position < @goBackThreshold
 			# if there is a previous song and we are only a few seconds in, go back
 			queue.unshift(currentSong)
@@ -372,6 +419,12 @@ relpath = (base, path) ->
 		path.unshift '..'
 
 	return path.join('/')
+
+formatTime = (time) ->
+	mins = Math.floor(time / 60).toString()
+	secs = Math.round(time % 60).toString()
+
+	return '00'.substr(mins.length) + mins + ':' + '00'.substr(secs.length) + secs
 
 
 # Splits a string at the first occurance of 'sep' and returns [before, sep, after]

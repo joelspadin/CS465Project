@@ -8,11 +8,13 @@
 	<link rel="stylesheet" href="/cs465/css/vine-home.css">
 	<link rel="stylesheet" href="/cs465/css/vine-search.css">
 	<link rel="stylesheet" href="/cs465/css/vine-player.css">
+	<link rel="stylesheet" href="/cs465/css/jquery-ui.css">
 
 	<script src="/cs465/js/d3.v2.js"></script>
 	<script src="/cs465/js/jquery.js"></script>
 	<script src="/cs465/js/modernizr.js"></script>
 	<script src="/cs465/js/prefixfree.js"></script>
+	<script src="/cs465/js/jquery-ui.min.js"></script>
 	<script src="/cs465/js/jquery.history.js"></script>
 	<script src="/cs465/js/lastfm/lastfm.api.js"></script>
 	<script src="/cs465/js/lastfm/lastfm.api.md5.js"></script>
@@ -97,14 +99,14 @@
 			<a id="btn-playpause" class="button"></a>
 			<a id="btn-next" class="button"></a>
 			<img src="/cs465/img/no-album.svg" id="album-art">
-			<div>
-				<div id="player-info">
+			<div class="info">
+				<div id="player-info" >
 					<span id="song-name">Song Title</span> by <span id="artist-name">Artist</span>
 				</div>
 				<div id="player-time">
-					<span id="current-time"></span>
-					<input type="range" id="ctrl-seek">
-					<span id="total-time"></span>
+					<span id="current-time">00:00</span>
+					<div id="ctrl-seek"></div>
+					<span id="total-time">00:00</span>
 				</div>
 			</div>
 			<div id="ctrl-volume"></div>
