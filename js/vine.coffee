@@ -5,7 +5,9 @@ History = root.History
 $ ->
 	$('.search-box').each (i, box) -> new SearchBox(box)
 	$('.loader').append $('<div>'), $('<div>'), $('<div>'), $('<div>'), 
-		$('<div>'), $('<div>'), $('<div>'), $('<div>'), 
+		$('<div>'), $('<div>'), $('<div>'), $('<div>')
+
+	$('#player-controls, #player-controls *:not(#player-info)').attr('unselectable', 'on')
 
 	vine.player = new VinePlayer
 
@@ -271,9 +273,9 @@ class VinePlayer
 
 	# sets the position of the seeker control
 	updatePosition: (time) =>
-		position = time
-		@elems.seek.slider { value: time }
-		@elems.currentTime.text formatTime(time)
+		position = Math.min(time, @duration)
+		@elems.seek.slider { value: position }
+		@elems.currentTime.text formatTime(position)
 
 	@property 'volume',
 		get: -> volume
@@ -369,11 +371,13 @@ class VinePlayer
 			# TODO: update graph
 
 			@updatePosition(0)
-			@play()
+			if @playing
+				@play()
 		else
 			# else restart the song
 			@seek(0)
-			@play()
+			if @playing
+				@play()
 
 
 

@@ -50,6 +50,7 @@
       return new SearchBox(box);
     });
     $('.loader').append($('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'));
+    $('#player-controls, #player-controls *:not(#player-info)').attr('unselectable', 'on');
     vine.player = new VinePlayer;
     _ref = relpath(vine.siteroot, location.pathname).partition('/'), viewname = _ref[0], _ref[1], query = _ref[2];
     if (viewname === 'search') {
@@ -124,7 +125,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 81
+          lineno: 83
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -143,7 +144,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 85
+              lineno: 87
             })));
             if (!err) results.push(data);
           }
@@ -378,11 +379,11 @@
     };
 
     VinePlayer.prototype.updatePosition = function(time) {
-      position = time;
+      position = Math.min(time, this.duration);
       this.elems.seek.slider({
-        value: time
+        value: position
       });
-      return this.elems.currentTime.text(formatTime(time));
+      return this.elems.currentTime.text(formatTime(position));
     };
 
     VinePlayer.property('volume', {
@@ -504,10 +505,10 @@
         queue.unshift(currentSong);
         currentSong = playedSongs.pop();
         this.updatePosition(0);
-        return this.play();
+        if (this.playing) return this.play();
       } else {
         this.seek(0);
-        return this.play();
+        if (this.playing) return this.play();
       }
     };
 

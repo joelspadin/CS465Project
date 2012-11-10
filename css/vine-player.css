@@ -46,6 +46,7 @@
   background: rgba(0, 0, 0, 0.9);
   color: #fff;
   border-radius: 8px;
+  user-select: text;
 }
 #view-player #player-controls img {
   width: 48px;
