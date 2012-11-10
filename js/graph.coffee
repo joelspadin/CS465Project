@@ -59,7 +59,7 @@ class root.SongData
 			callback err, this
 			return
 		
-		console.log data
+		#console.log data
 
 		this.lastfm.id = data.track.id
 		this.lastfm.name = data.track.name
@@ -75,6 +75,10 @@ class root.SongData
 
 		if err
 			callback err, this
+			return
+
+		if not data?
+			callback new Error("Cannot find '#{this.name} #{this.artist}' on Grooveshark"), this
 			return
 
 		this.gs.id = data.SongID
@@ -105,7 +109,7 @@ class root.SongData
 	@fromLastFMData: (data) ->
 		songdata = new SongData
 
-		console.log data
+		#console.log data
 		songdata.lastfm.id = data.mbid
 		songdata.lastfm.name = data.name
 		songdata.lastfm.artist = data.artist?.name ? null

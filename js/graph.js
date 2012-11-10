@@ -159,7 +159,6 @@
           callback(err, _this);
           return;
         }
-        console.log(data);
         _this.lastfm.id = data.track.id;
         _this.lastfm.name = data.track.name;
         _this.lastfm.artist = (_ref = (_ref1 = data.track.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
@@ -195,6 +194,10 @@
           callback(err, _this);
           return;
         }
+        if (!(typeof data !== "undefined" && data !== null)) {
+          callback(new Error("Cannot find '" + _this.name + " " + _this.artist + "' on Grooveshark"), _this);
+          return;
+        }
         _this.gs.id = data.SongID;
         _this.gs.name = data.SongName;
         _this.gs.artist = data.ArtistName;
@@ -224,7 +227,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 94
+          lineno: 98
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -241,7 +244,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 98
+            lineno: 102
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -255,7 +258,6 @@
     SongData.fromLastFMData = function(data) {
       var songdata, _ref, _ref1, _ref2, _ref3, _ref4;
       songdata = new SongData;
-      console.log(data);
       songdata.lastfm.id = data.mbid;
       songdata.lastfm.name = data.name;
       songdata.lastfm.artist = (_ref = (_ref1 = data.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
@@ -304,7 +306,7 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 139
+          lineno: 143
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -350,7 +352,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 149
+                  lineno: 153
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -399,7 +401,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 166
+              lineno: 170
             })));
             __iced_deferrals._fulfill();
           })(function() {

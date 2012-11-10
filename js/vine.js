@@ -1,5 +1,5 @@
 (function() {
-  var History, SearchBox, iced, relpath, root, __iced_k, __iced_k_noop,
+  var History, SearchBox, VinePlayer, iced, relpath, root, __iced_k, __iced_k_noop,
     __slice = [].slice;
 
   iced = {
@@ -49,6 +49,7 @@
       return new SearchBox(box);
     });
     $('.loader').append($('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'));
+    vine.player = new VinePlayer;
     _ref = relpath(vine.siteroot, location.pathname).partition('/'), viewname = _ref[0], _ref[1], query = _ref[2];
     if (viewname === 'search') {
       vine.search(query);
@@ -89,6 +90,7 @@
     rootnode: null,
     maxSearchResults: 20,
     currentQuery: null,
+    player: null,
     pushState: function(state, path) {
       state = state != null ? state : {};
       path = path != null ? path : '';
@@ -121,7 +123,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 74
+          lineno: 81
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -141,7 +143,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 78
+              lineno: 85
             })));
             if (!err) results.push(data);
           }
@@ -172,7 +174,8 @@
         rootnode: vine.rootnode
       });
       vine.resetSearchResults();
-      return vine.currentQuery = null;
+      vine.currentQuery = null;
+      return vine.player.init(vine.rootnode);
     },
     resetSearchResults: function() {
       vine.hideSearchResults();
@@ -251,6 +254,181 @@
     return Object.defineProperty(this.prototype, prop, desc);
   };
 
+  VinePlayer = (function() {
+    var lastIntervalTime, playedSongs, playing, position, positionTimer, queue, volume;
+
+    volume = 1;
+
+    playing = false;
+
+    VinePlayer.prototype.currentSong = null;
+
+    position = 0;
+
+    positionTimer = -1;
+
+    lastIntervalTime = 0;
+
+    queue = [];
+
+    playedSongs = [];
+
+    function VinePlayer() {
+      this.elems = {
+        favorite: $('#btn-favorite'),
+        prev: $('#btn-prev'),
+        playpause: $('#btn-playpause'),
+        next: $('#btn-next'),
+        art: $('#album-art'),
+        song: $('#song-name'),
+        artist: $('#artist-name'),
+        currentTime: $('#current-time'),
+        seek: $('#ctrl-seek'),
+        volume: $('#ctrl-volume')
+      };
+      this.goBackThreshold = 3;
+    }
+
+    VinePlayer.prototype.init = function(firstSong) {
+      var currentSong;
+      queue = [];
+      playedSongs = [];
+      currentSong = firstSong;
+      this.updatePosition(0);
+      return this.play();
+    };
+
+    VinePlayer.prototype._interval = function() {
+      var delta, now;
+      now = Date.now();
+      delta = (lastIntervalTime - now) / 1000;
+      lastIntervalTime = now;
+      return this.updatePosition(this.position + delta);
+    };
+
+    VinePlayer.prototype.updatePosition = function(time) {
+      return position = time;
+    };
+
+    VinePlayer.property('volume', {
+      get: function() {
+        return volume;
+      },
+      set: function(val) {
+        return volume = val;
+      }
+    });
+
+    VinePlayer.property('playing', {
+      get: function() {
+        return playing;
+      },
+      set: function(val) {
+        playing = !!val;
+        if (playing) {
+          return this.elems.playpause.addClass('pause');
+        } else {
+          return this.elems.playpause.removeClass('pause');
+        }
+      }
+    });
+
+    VinePlayer.property('currentSong', {
+      get: function() {
+        return currentSong;
+      }
+    });
+
+    VinePlayer.property('position', {
+      get: function() {
+        return position;
+      }
+    });
+
+    VinePlayer.property('queue', {
+      get: function() {
+        return queue;
+      }
+    });
+
+    VinePlayer.property('playedSongs', {
+      get: function() {
+        return playedSongs;
+      }
+    });
+
+    VinePlayer.prototype.play = function() {
+      if (!this.playing) {
+        lastIntervalTime = Date.now();
+        window.clearInterval(positionTimer);
+        positionTimer = window.setInterval(this._inverval, 300);
+        return this.playing = true;
+      }
+    };
+
+    VinePlayer.prototype.pause = function() {
+      if (this.playing) {
+        window.clearInterval(positionTimer);
+        return this.playing = false;
+      }
+    };
+
+    VinePlayer.prototype.seek = function(time) {
+      return updatePosition(time);
+    };
+
+    VinePlayer.prototype.enqueue = function(songnode) {
+      queue.remove(songnode);
+      return queue.push(songnode);
+    };
+
+    VinePlayer.prototype.dequeue = function(songnode) {
+      return queue.remove(songnode);
+    };
+
+    VinePlayer.prototype.enqueueAutomaticSong = function() {
+      return this.enqueue(null);
+    };
+
+    VinePlayer.prototype.isQueued = function(songnode) {
+      return queue.contains(songnode);
+    };
+
+    VinePlayer.prototype.wasPlayed = function(songnode) {
+      return playedSongs.contains(songnode);
+    };
+
+    VinePlayer.prototype.playNext = function() {
+      var currentSong, lastPlayed;
+      lastPlayed = currentSong;
+      currentSong = queue.shift();
+      if (this.currentSong != null) {
+        playedSongs.push(lastPlayed);
+        this.updatePosition(0);
+        return this.play();
+      } else {
+        this.enqueueAutomaticSong();
+        return this.playNext();
+      }
+    };
+
+    VinePlayer.prototype.playPrevious = function() {
+      var currentSong;
+      if (playedSongs.length > 0 && position < this.goBackThreshold) {
+        queue.unshift(currentSong);
+        currentSong = playedSongs.pop();
+        this.updatePosition(0);
+        return this.play();
+      } else {
+        this.seek(0);
+        return this.play();
+      }
+    };
+
+    return VinePlayer;
+
+  })();
+
   SearchBox = (function() {
 
     function SearchBox(elem) {
@@ -315,6 +493,29 @@
     } else {
       return [this.toString(), '', ''];
     }
+  };
+
+  Array.prototype.contains = function(item) {
+    var x, _i, _len;
+    for (_i = 0, _len = this.length; _i < _len; _i++) {
+      x = this[_i];
+      if (x === item) return true;
+    }
+    return false;
+  };
+
+  Array.prototype.remove = function(item) {
+    var i, _results;
+    i = 0;
+    _results = [];
+    while (i < this.length) {
+      if (this[i] === item) {
+        _results.push(this.splice(i, 1));
+      } else {
+        _results.push(i += 1);
+      }
+    }
+    return _results;
   };
 
 }).call(this);

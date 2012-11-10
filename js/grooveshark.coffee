@@ -39,7 +39,7 @@ class root.GrooveShark
 				callback err, data
 			else
 				if single
-					data = data[0] ? null
+					data = data?[0] ? null
 				else if not data?
 					data = []
 				

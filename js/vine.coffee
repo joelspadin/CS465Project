@@ -7,6 +7,8 @@ $ ->
 	$('.loader').append $('<div>'), $('<div>'), $('<div>'), $('<div>'), 
 		$('<div>'), $('<div>'), $('<div>'), $('<div>'), 
 
+	vine.player = new VinePlayer
+
 	# Read the URL and decide where we need to go
 	[viewname, [], query] = relpath(vine.siteroot, location.pathname).partition '/'
 	
@@ -53,12 +55,17 @@ root.vine =
 	maxSearchResults: 20
 	currentQuery: null
 
+	# coordinates between the graph, view controls, and Grooveshark
+	player: null
+
+	# updates the URL history
 	pushState: (state, path) ->
 		state = state ? {}
 		path = path ? ''
 		state.view = view.currentView
 		History.pushState state, '', vine.siteroot + view.getPath(view.currentView) + path
 
+	# runs a search for the given query
 	search: (query) ->
 		vine.currentQuery = query
 
@@ -90,13 +97,16 @@ root.vine =
 			for song in results
 				vine.addSearchResult song
 				
+	# picks a search result and starts playing it
 	selectSong: (song) ->
 		view.change 'player'
 		vine.rootnode = new SongNode(song)
 		vine.pushState { rootnode: vine.rootnode }
 		vine.resetSearchResults()
 		vine.currentQuery = null
+		vine.player.init(vine.rootnode)
 
+	# clears the search results view to its initial state
 	resetSearchResults: ->
 		vine.hideSearchResults()
 		vine.hideResultsSpinner()
@@ -173,6 +183,153 @@ root.view =
 Function::property = (prop, desc) ->
 	Object.defineProperty @prototype, prop, desc
 
+
+class VinePlayer
+	volume = 1
+	playing = false
+	currentSong: null
+
+	# current time in seconds
+	position = 0
+	positionTimer = -1
+	lastIntervalTime = 0
+
+	# songs to play
+	queue = []
+	# songs that have been played
+	playedSongs = []
+
+	constructor: ->
+		@elems =
+			favorite: $ '#btn-favorite'
+			prev: $ '#btn-prev'
+			playpause: $ '#btn-playpause'
+			next: $ '#btn-next'
+			art: $ '#album-art'
+			song: $ '#song-name'
+			artist: $ '#artist-name'
+			currentTime: $ '#current-time'
+			seek: $ '#ctrl-seek'
+			volume: $ '#ctrl-volume'
+
+		@goBackThreshold = 3
+
+	# resets the player starting with a given song
+	init: (firstSong) ->
+		queue = []
+		playedSongs = []
+		currentSong = firstSong
+		@updatePosition(0)
+		@play()
+
+	# timer to keep incrementing position while not receiving status messages
+	_interval: ->
+		now = Date.now()
+		delta = (lastIntervalTime - now) / 1000
+		lastIntervalTime = now
+		@updatePosition(@position + delta)
+
+	# sets the position of the seeker control
+	updatePosition: (time) ->
+		position = time
+		# TODO: update seek control
+
+	@property 'volume',
+		get: -> volume
+		set: (val) -> 
+			volume = val
+			# TODO: update volume control
+
+	@property 'playing',
+		get: -> playing
+		set: (val) ->
+			playing = !!val
+			if playing
+				@elems.playpause.addClass('pause')
+			else
+				@elems.playpause.removeClass('pause')
+				
+
+	@property 'currentSong',
+		get: -> currentSong
+
+	@property 'position',
+		get: -> position
+
+	@property 'queue',
+		get: -> queue
+
+	@property 'playedSongs',
+		get: -> playedSongs
+
+	play: ->
+		if not @playing
+			lastIntervalTime = Date.now()
+			window.clearInterval(positionTimer)
+			positionTimer = window.setInterval(@_inverval, 300)
+			# TODO: start playing
+			@playing = true
+
+	pause: ->
+		if @playing
+			window.clearInterval(positionTimer)
+			# TODO: stop playing
+			@playing = false
+
+	seek: (time) ->
+		updatePosition(time)
+		# TODO: seek to position in song
+
+	enqueue: (songnode) ->
+		queue.remove(songnode)
+		queue.push(songnode)
+		# TODO: update graph
+
+	dequeue: (songnode) ->
+		queue.remove(songnode)
+		# TODO: update graph
+
+	enqueueAutomaticSong: () ->
+		# TODO: find automatically selected song
+		@enqueue(null)
+
+	# gets whether a song is in the queue
+	isQueued: (songnode) ->
+		return queue.contains(songnode)
+
+	# gets whether a song was previously played
+	wasPlayed: (songnode) ->
+		return playedSongs.contains(songnode)
+
+	# moves to the next queued song
+	playNext: ->
+		lastPlayed = currentSong
+		currentSong = queue.shift()
+		if @currentSong?
+			playedSongs.push(lastPlayed)
+			@updatePosition(0)
+			@play()
+		else
+			@enqueueAutomaticSong()
+			@playNext()
+
+	# restarts the current song or plays the previously played song
+	playPrevious: ->
+		if playedSongs.length > 0 and position < @goBackThreshold
+			# if there is a previous song and we are only a few seconds in, go back
+			queue.unshift(currentSong)
+			currentSong = playedSongs.pop()
+			# TODO: update graph
+
+			@updatePosition(0)
+			@play()
+		else
+			# else restart the song
+			@seek(0)
+			@play()
+
+
+
 # Attaches search events to a search box element
 class SearchBox
 	constructor: (elem) ->
@@ -224,3 +381,17 @@ String::partition = (sep) ->
 		return [this.substr(0, _index), sep, this.substr(_index + sep.length)]
 	else
 		return [this.toString(), '', '']
+
+Array::contains = (item) ->
+	for x in this
+		if x == item
+			return true
+	return false
+
+Array::remove = (item) ->
+	i = 0
+	while i < this.length
+		if this[i] == item
+			this.splice(i, 1)
+		else
+			i += 1

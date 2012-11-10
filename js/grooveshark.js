@@ -53,7 +53,7 @@
           return callback(err, data);
         } else {
           if (single) {
-            data = (_ref = data[0]) != null ? _ref : null;
+            data = (_ref = data != null ? data[0] : void 0) != null ? _ref : null;
           } else if (!(data != null)) {
             data = [];
           }
