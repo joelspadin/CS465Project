@@ -16,6 +16,9 @@ class root.SongData
 	@property 'id',
 		get: -> this.lastfm.id
 
+	@property 'mbid',
+		get: -> this.lastfm.mbid
+
 	@property 'name',
 		get: -> this.lastfm.name ? this.gs.name
 
@@ -36,6 +39,7 @@ class root.SongData
 
 		this.lastfm = 
 			id: null
+			mbid: null
 			name: null
 			artist: null
 			album: null
@@ -62,6 +66,7 @@ class root.SongData
 		#console.log data
 
 		this.lastfm.id = data.track.id
+		this.lastfm.mbid = data.track.mbid ? null
 		this.lastfm.name = data.track.name
 		this.lastfm.artist = data.track.artist?.name ? null
 		this.lastfm.album = data.track.album?.title ? null
@@ -106,11 +111,31 @@ class root.SongData
 		songdata.loaded = true
 		callback null, songdata
 
+	@fromMBID: (mbid, callback) ->
+		await awaitable(lastfm.track.getInfo)
+			mbid: mbid
+		, (defer err, data)
+
+		console.log(err, data)
+		if err
+			callback err, null
+
+		if not data.track?
+			callback new Error('Could not find track with mbid: ' + mbid), null
+
+		songdata = SongData.fromLastFMData(data.track)
+		await songdata.getGroovesharkData (defer err, data)
+		if err
+			callback err, songdata
+
+		songdata.loaded = true
+		callback null, songdata
+
 	@fromLastFMData: (data) ->
 		songdata = new SongData
 
-		console.log data
-		songdata.lastfm.id = data.mbid
+		songdata.lastfm.id = data.id
+		songdata.lastfm.mbid = data.mbid ? null
 		songdata.lastfm.name = data.name
 		songdata.lastfm.artist = data.artist?.name ? null
 		songdata.lastfm.album = data.album?.title ? null

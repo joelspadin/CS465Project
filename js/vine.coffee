@@ -15,11 +15,11 @@ $ ->
 	[viewname, [], query] = relpath(vine.siteroot, location.pathname).partition '/'
 	
 	if viewname == 'search'
-		vine.search(query)
+		vine.search(decodeURIComponent(query))
 	else if viewname == 'player'
 		# TODO, if a query is sent, build player for that song
 		view.change 'player'
-		vine.pushState()
+		vine.reloadSong(query)
 	else
 		view.change 'home'
 		vine.pushState()
@@ -28,14 +28,17 @@ $ ->
 	History.Adapter.bind window, 'statechange', (e)->
 		state = History.getState()
 
-		if state != vine.currentstate
+		if state != vine.currentstate and state.view?
 			console.log state, view.currentState
 			vine.currentState = state
 			if state.data.view != view.currentView
 				view.change(state.data.view)
 
 			if state.data.view == 'search' and state.data.query? and state.data.query != vine.currentQuery
-				vine.search(state.data.query)
+				vine.search(decodeURIComponent(state.data.query))
+
+			if state.data.view == 'player' and state.data.rootnode? and state.data.rootnode != vine.rootnode
+				vine.selectSong(state.data.rootnode.song)
 
 
 root.gs = new GrooveShark '67b088cec7b78a5b29a42a7124928c87'
@@ -103,10 +106,35 @@ root.vine =
 	selectSong: (song) ->
 		view.change 'player'
 		vine.rootnode = new SongNode(song)
-		vine.pushState { rootnode: vine.rootnode }
+		vine.pushState { rootnode: vine.rootnode }, vine.encodeSongURL(song)
 		vine.resetSearchResults()
 		vine.currentQuery = null
 		vine.player.init(vine.rootnode)
+
+	reloadSong: (url) ->
+		decoded = vine.decodeSongURL(url)
+		if 'mbid' of decoded
+			await SongData.fromMBID decoded.mbid, (defer err, song)
+		else
+			await SongData.create decoded.name, decoded.artist, (defer err, song)
+
+		vine.selectSong(song)
+
+	encodeSongURL: (song) ->
+		if song.mbid
+			return song.mbid
+		else
+			return encodeURIComponent(song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F'))
+
+	decodeSongURL: (url) ->
+		if url.match /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+			return { mbid: url }
+		else
+			[name, [], artist] = url.partition '/'
+			return {
+				name: name.replace('%2F', '/')
+				artist: artist.replace('%2F', '/')
+			}
 
 	# clears the search results view to its initial state
 	resetSearchResults: ->
@@ -426,7 +454,7 @@ relpath = (base, path) ->
 
 formatTime = (time) ->
 	mins = Math.floor(time / 60).toString()
-	secs = Math.round(time % 60).toString()
+	secs = Math.floor(time % 60).toString()
 
 	return '00'.substr(mins.length) + mins + ':' + '00'.substr(secs.length) + secs
 

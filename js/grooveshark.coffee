@@ -27,7 +27,6 @@ class root.GrooveShark
 
 	# search(query [, limit = 1], callback)
 	search: (query, limit, callback) =>
-		console.log arguments
 		single = false
 		if not arguments[2]?
 			callback = arguments[1]

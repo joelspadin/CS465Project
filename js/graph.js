@@ -70,6 +70,12 @@
       }
     });
 
+    SongData.property('mbid', {
+      get: function() {
+        return this.lastfm.mbid;
+      }
+    });
+
     SongData.property('name', {
       get: function() {
         var _ref;
@@ -114,6 +120,7 @@
       this.loaded = false;
       this.lastfm = {
         id: null,
+        mbid: null,
         name: null,
         artist: null,
         album: null,
@@ -150,20 +157,21 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 57
+          lineno: 61
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        var _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+        var _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
         if (err) {
           callback(err, _this);
           return;
         }
         _this.lastfm.id = data.track.id;
+        _this.lastfm.mbid = (_ref = data.track.mbid) != null ? _ref : null;
         _this.lastfm.name = data.track.name;
-        _this.lastfm.artist = (_ref = (_ref1 = data.track.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
-        _this.lastfm.album = (_ref2 = (_ref3 = data.track.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
-        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = (_ref5 = data.track.album) != null ? _ref5.image : void 0) != null ? _ref4 : data.image);
+        _this.lastfm.artist = (_ref1 = (_ref2 = data.track.artist) != null ? _ref2.name : void 0) != null ? _ref1 : null;
+        _this.lastfm.album = (_ref3 = (_ref4 = data.track.album) != null ? _ref4.title : void 0) != null ? _ref3 : null;
+        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref5 = (_ref6 = data.track.album) != null ? _ref6.image : void 0) != null ? _ref5 : data.image);
         _this.lastfm.url = data.track.url;
         return callback(null, _this);
       });
@@ -186,7 +194,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 75
+          lineno: 80
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -227,7 +235,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 98
+          lineno: 103
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -244,7 +252,59 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 102
+            lineno: 107
+          })));
+          __iced_deferrals._fulfill();
+        })(function() {
+          if (err) callback(err, songdata);
+          songdata.loaded = true;
+          return callback(null, songdata);
+        });
+      });
+    };
+
+    SongData.fromMBID = function(mbid, callback) {
+      var data, err, songdata, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          funcname: "SongData.fromMBID"
+        });
+        awaitable(lastfm.track.getInfo)({
+          mbid: mbid
+        }, (__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              err = arguments[0];
+              return data = arguments[1];
+            };
+          })(),
+          lineno: 118
+        })));
+        __iced_deferrals._fulfill();
+      })(function() {
+        console.log(err, data);
+        if (err) callback(err, null);
+        if (!(data.track != null)) {
+          callback(new Error('Could not find track with mbid: ' + mbid), null);
+        }
+        songdata = SongData.fromLastFMData(data.track);
+        (function(__iced_k) {
+          __iced_deferrals = new iced.Deferrals(__iced_k, {
+            parent: ___iced_passed_deferral,
+            funcname: "SongData.fromMBID"
+          });
+          songdata.getGroovesharkData((__iced_deferrals.defer({
+            assign_fn: (function() {
+              return function() {
+                err = arguments[0];
+                return data = arguments[1];
+              };
+            })(),
+            lineno: 127
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -256,14 +316,14 @@
     };
 
     SongData.fromLastFMData = function(data) {
-      var songdata, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var songdata, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
       songdata = new SongData;
-      console.log(data);
-      songdata.lastfm.id = data.mbid;
+      songdata.lastfm.id = data.id;
+      songdata.lastfm.mbid = (_ref = data.mbid) != null ? _ref : null;
       songdata.lastfm.name = data.name;
-      songdata.lastfm.artist = (_ref = (_ref1 = data.artist) != null ? _ref1.name : void 0) != null ? _ref : null;
-      songdata.lastfm.album = (_ref2 = (_ref3 = data.album) != null ? _ref3.title : void 0) != null ? _ref2 : null;
-      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref4 = (_ref5 = data.album) != null ? _ref5.image : void 0) != null ? _ref4 : data.image);
+      songdata.lastfm.artist = (_ref1 = (_ref2 = data.artist) != null ? _ref2.name : void 0) != null ? _ref1 : null;
+      songdata.lastfm.album = (_ref3 = (_ref4 = data.album) != null ? _ref4.title : void 0) != null ? _ref3 : null;
+      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref5 = (_ref6 = data.album) != null ? _ref6.image : void 0) != null ? _ref5 : data.image);
       return songdata;
     };
 
@@ -307,7 +367,7 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 143
+          lineno: 168
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -353,7 +413,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 153
+                  lineno: 178
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -402,7 +462,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 170
+              lineno: 195
             })));
             __iced_deferrals._fulfill();
           })(function() {

@@ -54,10 +54,10 @@
     vine.player = new VinePlayer;
     _ref = relpath(vine.siteroot, location.pathname).partition('/'), viewname = _ref[0], _ref[1], query = _ref[2];
     if (viewname === 'search') {
-      vine.search(query);
+      vine.search(decodeURIComponent(query));
     } else if (viewname === 'player') {
       view.change('player');
-      vine.pushState();
+      vine.reloadSong(query);
     } else {
       view.change('home');
       vine.pushState();
@@ -65,12 +65,15 @@
     return History.Adapter.bind(window, 'statechange', function(e) {
       var state;
       state = History.getState();
-      if (state !== vine.currentstate) {
+      if (state !== vine.currentstate && (state.view != null)) {
         console.log(state, view.currentState);
         vine.currentState = state;
         if (state.data.view !== view.currentView) view.change(state.data.view);
         if (state.data.view === 'search' && (state.data.query != null) && state.data.query !== vine.currentQuery) {
-          return vine.search(state.data.query);
+          vine.search(decodeURIComponent(state.data.query));
+        }
+        if (state.data.view === 'player' && (state.data.rootnode != null) && state.data.rootnode !== vine.rootnode) {
+          return vine.selectSong(state.data.rootnode.song);
         }
       }
     });
@@ -125,7 +128,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 83
+          lineno: 86
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -144,7 +147,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 87
+              lineno: 90
             })));
             if (!err) results.push(data);
           }
@@ -173,10 +176,77 @@
       vine.rootnode = new SongNode(song);
       vine.pushState({
         rootnode: vine.rootnode
-      });
+      }, vine.encodeSongURL(song));
       vine.resetSearchResults();
       vine.currentQuery = null;
       return vine.player.init(vine.rootnode);
+    },
+    reloadSong: function(url) {
+      var decoded, err, song, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      decoded = vine.decodeSongURL(url);
+      (function(__iced_k) {
+        if ('mbid' in decoded) {
+          (function(__iced_k) {
+            __iced_deferrals = new iced.Deferrals(__iced_k, {
+              parent: ___iced_passed_deferral,
+              funcname: "reloadSong"
+            });
+            SongData.fromMBID(decoded.mbid, (__iced_deferrals.defer({
+              assign_fn: (function() {
+                return function() {
+                  err = arguments[0];
+                  return song = arguments[1];
+                };
+              })(),
+              lineno: 117
+            })));
+            __iced_deferrals._fulfill();
+          })(__iced_k);
+        } else {
+          (function(__iced_k) {
+            __iced_deferrals = new iced.Deferrals(__iced_k, {
+              parent: ___iced_passed_deferral,
+              funcname: "reloadSong"
+            });
+            SongData.create(decoded.name, decoded.artist, (__iced_deferrals.defer({
+              assign_fn: (function() {
+                return function() {
+                  err = arguments[0];
+                  return song = arguments[1];
+                };
+              })(),
+              lineno: 120
+            })));
+            __iced_deferrals._fulfill();
+          })(__iced_k);
+        }
+      })(function() {
+        return vine.selectSong(song);
+      });
+    },
+    encodeSongURL: function(song) {
+      if (song.mbid) {
+        return song.mbid;
+      } else {
+        return encodeURIComponent(song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F'));
+      }
+    },
+    decodeSongURL: function(url) {
+      var artist, name, _ref;
+      if (url.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        return {
+          mbid: url
+        };
+      } else {
+        _ref = url.partition('/'), name = _ref[0], _ref[1], artist = _ref[2];
+        return {
+          name: name.replace('%2F', '/'),
+          artist: artist.replace('%2F', '/')
+        };
+      }
     },
     resetSearchResults: function() {
       vine.hideSearchResults();
@@ -576,7 +646,7 @@
   formatTime = function(time) {
     var mins, secs;
     mins = Math.floor(time / 60).toString();
-    secs = Math.round(time % 60).toString();
+    secs = Math.floor(time % 60).toString();
     return '00'.substr(mins.length) + mins + ':' + '00'.substr(secs.length) + secs;
   };
 

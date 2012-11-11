@@ -37,7 +37,6 @@
 
     GrooveShark.prototype.search = function(query, limit, callback) {
       var single;
-      console.log(arguments);
       single = false;
       if (!(arguments[2] != null)) {
         callback = arguments[1];
