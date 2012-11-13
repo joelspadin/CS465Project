@@ -65,7 +65,7 @@
     return History.Adapter.bind(window, 'statechange', function(e) {
       var state;
       state = History.getState();
-      if (state !== vine.currentstate && (state.view != null)) {
+      if (state !== vine.currentstate && (state.data.view != null)) {
         console.log(state, view.currentState);
         vine.currentState = state;
         if (state.data.view !== view.currentView) view.change(state.data.view);

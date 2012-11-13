@@ -28,7 +28,7 @@ $ ->
 	History.Adapter.bind window, 'statechange', (e)->
 		state = History.getState()
 
-		if state != vine.currentstate and state.view?
+		if state != vine.currentstate and state.data.view?
 			console.log state, view.currentState
 			vine.currentState = state
 			if state.data.view != view.currentView
