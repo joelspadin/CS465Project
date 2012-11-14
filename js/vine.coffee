@@ -13,9 +13,10 @@ $ ->
 
 	# Read the URL and decide where we need to go
 	[viewname, [], query] = relpath(vine.siteroot, location.pathname).partition '/'
-	
+	query = vine.decodePath(query)
+
 	if viewname == 'search'
-		vine.search(decodeURIComponent(query))
+		vine.search(query)
 	else if viewname == 'player'
 		# TODO, if a query is sent, build player for that song
 		view.change 'player'
@@ -28,17 +29,24 @@ $ ->
 	History.Adapter.bind window, 'statechange', (e)->
 		state = History.getState()
 
-		if state != vine.currentstate and state.data.view?
-			console.log state, view.currentState
-			vine.currentState = state
-			if state.data.view != view.currentView
-				view.change(state.data.view)
-
+		if state.data.id? and state.data.id != vine.currentState and state.data.view?
+			console.log 'STATE', state.data.id, vine.currentState, state.data.id != vine.currentState, state
+			vine.currentState = state.data.id
+			
 			if state.data.view == 'search' and state.data.query? and state.data.query != vine.currentQuery
-				vine.search(decodeURIComponent(state.data.query))
+				console.log 'restoring search'
+				vine.search(state.data.query, true)
 
-			if state.data.view == 'player' and state.data.rootnode? and state.data.rootnode != vine.rootnode
-				vine.selectSong(state.data.rootnode.song)
+			else if state.data.view == 'player' and state.data.rootnode? and state.data.rootnode.song.id != vine.rootnode.song.id
+				console.log 'restoring player', state.data.rootnode
+				vine.selectSong(SongData.clone(state.data.rootnode.song), true)
+
+			else if state.data.view == 'player' and (not state.data.rootnode?.song instanceof SongData) and state.data.song?
+				console.log 'restoring player from song encoding', state.data.song
+				vine.reloadSong(state.data.song, true)
+
+			else if state.data.view != view.currentView
+				view.change(state.data.view)
 
 
 root.gs = new GrooveShark '67b088cec7b78a5b29a42a7124928c87'
@@ -54,7 +62,8 @@ root.lastfm = new LastFM
 # The main application object
 root.vine =
 	siteroot: '/cs465'
-	currentState: null
+	currentState: 0
+
 	rootnode: null
 
 	maxSearchResults: 20
@@ -65,20 +74,26 @@ root.vine =
 
 	# updates the URL history
 	pushState: (state, path) ->
+		vine.currentState += 1
+
 		state = state ? {}
 		path = path ? ''
+		state.id = vine.currentState
 		state.view = view.currentView
-		History.pushState state, '', vine.siteroot + view.getPath(view.currentView) + path
+
+		console.log 'pushing state', vine.currentState
+		History.pushState state, '', vine.siteroot + view.getPath(view.currentView) + vine.encodePath(escape(path))
 
 	# runs a search for the given query
-	search: (query) ->
+	search: (query, restoring) ->
 		vine.currentQuery = query
 
 		$('.search-query').text query
 		vine.resetSearchResults()
 
 		view.change 'search'
-		vine.pushState { query: query }, query
+		if not restoring
+			vine.pushState { query: query }, query
 
 		vine.showResultsSpinner()
 		results = []
@@ -103,28 +118,42 @@ root.vine =
 				vine.addSearchResult song
 				
 	# picks a search result and starts playing it
-	selectSong: (song) ->
+	selectSong: (song, restoring) ->
+		console.log 'selected song', song, song instanceof SongNode, song instanceof SongData
 		view.change 'player'
+
 		vine.rootnode = new SongNode(song)
-		vine.pushState { rootnode: vine.rootnode }, vine.encodeSongURL(song)
+
+		if not restoring
+			console.log 'pushing state'
+			vine.pushState { rootnode: vine.rootnode, song: vine.encodeSongURL(song) }, vine.encodeSongURL(song)
 		vine.resetSearchResults()
 		vine.currentQuery = null
 		vine.player.init(vine.rootnode)
 
-	reloadSong: (url) ->
+	reloadSong: (url, restoring) ->
 		decoded = vine.decodeSongURL(url)
 		if 'mbid' of decoded
 			await SongData.fromMBID decoded.mbid, (defer err, song)
 		else
 			await SongData.create decoded.name, decoded.artist, (defer err, song)
 
-		vine.selectSong(song)
+		vine.selectSong(song, restoring)
+
+	encodePath: (path) ->
+		return encodeURIComponent(escape(path))
+
+	decodePath: (path) ->
+		return unescape(decodeURIComponent(path))
 
 	encodeSongURL: (song) ->
+		if not song?.name?
+			return ''
+
 		if song.mbid
 			return song.mbid
 		else
-			return encodeURIComponent(song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F'))
+			return song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F')
 
 	decodeSongURL: (url) ->
 		if url.match /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -229,6 +258,7 @@ class VinePlayer
 	queue = []
 	# songs that have been played
 	playedSongs = []
+	autoQueuedSong = null
 
 	constructor: ->
 		@elems =
@@ -275,6 +305,16 @@ class VinePlayer
 				if @playing
 					@_startUpdate()
 
+		@elems.volume.slider
+			orientation: 'vertical'
+			range: 'min'
+			min: 0
+			max: 1
+			step: 0.05
+			value: 1
+			slide: (e, ui) =>
+				@volume = ui.value
+
 				
 
 	# resets the player starting with a given song
@@ -282,6 +322,7 @@ class VinePlayer
 		queue = []
 		playedSongs = []
 		currentSong = firstSong
+		@updateSongInfo()
 		@updatePosition(0)
 		@play()
 
@@ -301,14 +342,15 @@ class VinePlayer
 
 	# sets the position of the seeker control
 	updatePosition: (time) =>
-		position = Math.min(time, @duration)
+		position = Math.min(@duration, Math.max(0, time))
 		@elems.seek.slider { value: position }
 		@elems.currentTime.text formatTime(position)
 
 	@property 'volume',
 		get: -> volume
 		set: (val) -> 
-			volume = val
+			volume = Math.min(1, Math.max(0, val))
+			@elems.volume.slider { value: volume }
 			# TODO: update volume control
 
 	@property 'playing',
@@ -357,22 +399,58 @@ class VinePlayer
 		@updatePosition(time)
 		# TODO: seek to position in song
 
+	# updates the player controls
+	updateSongInfo: () =>
+		@elems.song.text currentSong?.song.name ? 'No Title'
+		@elems.artist.text currentSong?.song.artist ? 'No Artist'
+		if currentSong?.song.albumArt?
+			@elems.art.attr 'src', currentSong.song.albumArt 
+			@elems.art.addClass 'hasart'
+		else
+			@elems.art.attr 'src', '/cs465/img/no-album.svg'
+			@elems.art.removeClass 'hasart'
+
+		# TODO: update song duration
+
+	# begins playing the given song
+	playNow: (songnode) =>
+		queue.unshift(songnode)
+		@playNext()
+
+	# adds the given song to the end of the queue.
+	# If the song is already queued, it will be moved to the end.
 	enqueue: (songnode) =>
 		queue.remove(songnode)
 		queue.push(songnode)
 		# TODO: update graph
 
+	# removes the given song from the queue
 	dequeue: (songnode) =>
 		queue.remove(songnode)
 		# TODO: update graph
 
 	enqueueAutomaticSong: () =>
-		# TODO: find automatically selected song
-		@enqueue(null)
+		@enqueue(autoQueuedSong)
+		await autoQueuedSong.expand (defer err)
+		if err
+			# TODO: show an error message
+		else
+			@updateAutomaticSong()
+
+	updateAutomaticSong: () =>
+		choices = queue[queue.length - 1].children
+		# dumb selection code. randomly pick a child and queue it
+		i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1)
+		autoQueuedSong = choices[i]
+		# TODO: update graph
 
 	# gets whether a song is in the queue
 	isQueued: (songnode) =>
 		return queue.contains(songnode)
+
+	# gets whether a song is currently playing
+	isPlaying: (songnode) =>
+		return currentSong == songnode
 
 	# gets whether a song was previously played
 	wasPlayed: (songnode) =>

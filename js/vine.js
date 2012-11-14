@@ -53,8 +53,9 @@
     $('#player-controls, #player-controls *:not(#player-info)').attr('unselectable', 'on');
     vine.player = new VinePlayer;
     _ref = relpath(vine.siteroot, location.pathname).partition('/'), viewname = _ref[0], _ref[1], query = _ref[2];
+    query = vine.decodePath(query);
     if (viewname === 'search') {
-      vine.search(decodeURIComponent(query));
+      vine.search(query);
     } else if (viewname === 'player') {
       view.change('player');
       vine.reloadSong(query);
@@ -63,17 +64,22 @@
       vine.pushState();
     }
     return History.Adapter.bind(window, 'statechange', function(e) {
-      var state;
+      var state, _ref1;
       state = History.getState();
-      if (state !== vine.currentstate && (state.data.view != null)) {
-        console.log(state, view.currentState);
-        vine.currentState = state;
-        if (state.data.view !== view.currentView) view.change(state.data.view);
+      if ((state.data.id != null) && state.data.id !== vine.currentState && (state.data.view != null)) {
+        console.log('STATE', state.data.id, vine.currentState, state.data.id !== vine.currentState, state);
+        vine.currentState = state.data.id;
         if (state.data.view === 'search' && (state.data.query != null) && state.data.query !== vine.currentQuery) {
-          vine.search(decodeURIComponent(state.data.query));
-        }
-        if (state.data.view === 'player' && (state.data.rootnode != null) && state.data.rootnode !== vine.rootnode) {
-          return vine.selectSong(state.data.rootnode.song);
+          console.log('restoring search');
+          return vine.search(state.data.query, true);
+        } else if (state.data.view === 'player' && (state.data.rootnode != null) && state.data.rootnode.song.id !== vine.rootnode.song.id) {
+          console.log('restoring player', state.data.rootnode);
+          return vine.selectSong(SongData.clone(state.data.rootnode.song), true);
+        } else if (state.data.view === 'player' && (!((_ref1 = state.data.rootnode) != null ? _ref1.song : void 0) instanceof SongData) && (state.data.song != null)) {
+          console.log('restoring player from song encoding', state.data.song);
+          return vine.reloadSong(state.data.song, true);
+        } else if (state.data.view !== view.currentView) {
+          return view.change(state.data.view);
         }
       }
     });
@@ -91,18 +97,21 @@
 
   root.vine = {
     siteroot: '/cs465',
-    currentState: null,
+    currentState: 0,
     rootnode: null,
     maxSearchResults: 20,
     currentQuery: null,
     player: null,
     pushState: function(state, path) {
+      vine.currentState += 1;
       state = state != null ? state : {};
       path = path != null ? path : '';
+      state.id = vine.currentState;
       state.view = view.currentView;
-      return History.pushState(state, '', vine.siteroot + view.getPath(view.currentView) + path);
+      console.log('pushing state', vine.currentState);
+      return History.pushState(state, '', vine.siteroot + view.getPath(view.currentView) + vine.encodePath(escape(path)));
     },
-    search: function(query) {
+    search: function(query, restoring) {
       var candidates, data, err, result, results, song, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
@@ -111,9 +120,11 @@
       $('.search-query').text(query);
       vine.resetSearchResults();
       view.change('search');
-      vine.pushState({
-        query: query
-      }, query);
+      if (!restoring) {
+        vine.pushState({
+          query: query
+        }, query);
+      }
       vine.showResultsSpinner();
       results = [];
       (function(__iced_k) {
@@ -128,7 +139,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 86
+          lineno: 101
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -147,7 +158,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 90
+              lineno: 105
             })));
             if (!err) results.push(data);
           }
@@ -171,17 +182,22 @@
         });
       });
     },
-    selectSong: function(song) {
+    selectSong: function(song, restoring) {
+      console.log('selected song', song, song instanceof SongNode, song instanceof SongData);
       view.change('player');
       vine.rootnode = new SongNode(song);
-      vine.pushState({
-        rootnode: vine.rootnode
-      }, vine.encodeSongURL(song));
+      if (!restoring) {
+        console.log('pushing state');
+        vine.pushState({
+          rootnode: vine.rootnode,
+          song: vine.encodeSongURL(song)
+        }, vine.encodeSongURL(song));
+      }
       vine.resetSearchResults();
       vine.currentQuery = null;
       return vine.player.init(vine.rootnode);
     },
-    reloadSong: function(url) {
+    reloadSong: function(url, restoring) {
       var decoded, err, song, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
@@ -201,7 +217,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 117
+              lineno: 137
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -218,20 +234,27 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 120
+              lineno: 140
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
         }
       })(function() {
-        return vine.selectSong(song);
+        return vine.selectSong(song, restoring);
       });
     },
+    encodePath: function(path) {
+      return encodeURIComponent(escape(path));
+    },
+    decodePath: function(path) {
+      return unescape(decodeURIComponent(path));
+    },
     encodeSongURL: function(song) {
+      if (!((song != null ? song.name : void 0) != null)) return '';
       if (song.mbid) {
         return song.mbid;
       } else {
-        return encodeURIComponent(song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F'));
+        return song.name.replace('/', '%2F') + '/' + song.artist.replace('/', '%2F');
       }
     },
     decodeSongURL: function(url) {
@@ -326,7 +349,7 @@
   };
 
   VinePlayer = (function() {
-    var currentSong, duration, lastIntervalTime, playedSongs, playing, position, positionTimer, queue, volume;
+    var autoQueuedSong, currentSong, duration, lastIntervalTime, playedSongs, playing, position, positionTimer, queue, volume;
 
     volume = 1;
 
@@ -346,6 +369,8 @@
 
     playedSongs = [];
 
+    autoQueuedSong = null;
+
     function VinePlayer() {
       this.playPrevious = __bind(this.playPrevious, this);
 
@@ -353,13 +378,21 @@
 
       this.wasPlayed = __bind(this.wasPlayed, this);
 
+      this.isPlaying = __bind(this.isPlaying, this);
+
       this.isQueued = __bind(this.isQueued, this);
+
+      this.updateAutomaticSong = __bind(this.updateAutomaticSong, this);
 
       this.enqueueAutomaticSong = __bind(this.enqueueAutomaticSong, this);
 
       this.dequeue = __bind(this.dequeue, this);
 
       this.enqueue = __bind(this.enqueue, this);
+
+      this.playNow = __bind(this.playNow, this);
+
+      this.updateSongInfo = __bind(this.updateSongInfo, this);
 
       this.seek = __bind(this.seek, this);
 
@@ -421,12 +454,24 @@
           if (_this.playing) return _this._startUpdate();
         }
       });
+      this.elems.volume.slider({
+        orientation: 'vertical',
+        range: 'min',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        value: 1,
+        slide: function(e, ui) {
+          return _this.volume = ui.value;
+        }
+      });
     }
 
     VinePlayer.prototype.init = function(firstSong) {
       queue = [];
       playedSongs = [];
       currentSong = firstSong;
+      this.updateSongInfo();
       this.updatePosition(0);
       return this.play();
     };
@@ -449,7 +494,7 @@
     };
 
     VinePlayer.prototype.updatePosition = function(time) {
-      position = Math.min(time, this.duration);
+      position = Math.min(this.duration, Math.max(0, time));
       this.elems.seek.slider({
         value: position
       });
@@ -461,7 +506,10 @@
         return volume;
       },
       set: function(val) {
-        return volume = val;
+        volume = Math.min(1, Math.max(0, val));
+        return this.elems.volume.slider({
+          value: volume
+        });
       }
     });
 
@@ -535,6 +583,24 @@
       return this.updatePosition(time);
     };
 
+    VinePlayer.prototype.updateSongInfo = function() {
+      var _ref, _ref1;
+      this.elems.song.text((_ref = currentSong != null ? currentSong.song.name : void 0) != null ? _ref : 'No Title');
+      this.elems.artist.text((_ref1 = currentSong != null ? currentSong.song.artist : void 0) != null ? _ref1 : 'No Artist');
+      if ((currentSong != null ? currentSong.song.albumArt : void 0) != null) {
+        this.elems.art.attr('src', currentSong.song.albumArt);
+        return this.elems.art.addClass('hasart');
+      } else {
+        this.elems.art.attr('src', '/cs465/img/no-album.svg');
+        return this.elems.art.removeClass('hasart');
+      }
+    };
+
+    VinePlayer.prototype.playNow = function(songnode) {
+      queue.unshift(songnode);
+      return this.playNext();
+    };
+
     VinePlayer.prototype.enqueue = function(songnode) {
       queue.remove(songnode);
       return queue.push(songnode);
@@ -545,11 +611,45 @@
     };
 
     VinePlayer.prototype.enqueueAutomaticSong = function() {
-      return this.enqueue(null);
+      var err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      this.enqueue(autoQueuedSong);
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          funcname: "VinePlayer.enqueueAutomaticSong"
+        });
+        autoQueuedSong.expand((__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              return err = arguments[0];
+            };
+          })(),
+          lineno: 434
+        })));
+        __iced_deferrals._fulfill();
+      })(function() {
+        if (err) {} else {
+          return _this.updateAutomaticSong();
+        }
+      });
+    };
+
+    VinePlayer.prototype.updateAutomaticSong = function() {
+      var choices, i;
+      choices = queue[queue.length - 1].children;
+      i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1);
+      return autoQueuedSong = choices[i];
     };
 
     VinePlayer.prototype.isQueued = function(songnode) {
       return queue.contains(songnode);
+    };
+
+    VinePlayer.prototype.isPlaying = function(songnode) {
+      return currentSong === songnode;
     };
 
     VinePlayer.prototype.wasPlayed = function(songnode) {

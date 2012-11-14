@@ -44,8 +44,8 @@
   width: 500px;
   margin-left: -250px;
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.9);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
   border-radius: 8px;
   user-select: text;
 }
@@ -54,6 +54,9 @@
   height: 48px;
   margin: 0 4px 0 8px;
   vertical-align: bottom;
+}
+#view-player #player-controls img.hasart {
+  border: 1px solid #000000;
 }
 #view-player #player-controls div.info {
   display: inline-block;
@@ -96,6 +99,13 @@
 }
 #view-player #player-controls #player-info {
   height: 24px;
+  width: 248px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#view-player #player-controls #player-info .by {
+  color: #aaaaaa;
 }
 #view-player #player-controls #player-time {
   height: 23px;
@@ -118,4 +128,27 @@
 }
 #view-player #player-controls #player-time:hover .ui-slider-handle {
   opacity: 1;
+}
+#view-player #player-controls #ctrl-volume {
+  float: right;
+  height: 41px;
+  margin-top: 4px;
+}
+#view-player #player-controls #ctrl-volume:hover .ui-slider-handle {
+  opacity: 1;
+}
+#view-player #player-controls #ctrl-volume .ui-slider-range {
+  background-color: transparent;
+  background-image: linear-gradient(0deg, #3372f1 0, #3372f1 75%, #000000 75%, #000000 100%);
+  background-repeat: repeat;
+  background-size: 100% 4px;
+  background-position: center bottom;
+}
+#view-player #player-controls #ctrl-volume:before {
+  content: ' ';
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin-left: -32px;
+  background: url('../img/volume.svg');
 }

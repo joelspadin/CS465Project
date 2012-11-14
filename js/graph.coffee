@@ -29,10 +29,10 @@ class root.SongData
 		get: -> this.lastfm.album ? this.gs.album
 
 	@property 'albumArt',
-		get: -> this.lastfm.albumArt['small'] ? null
+		get: -> this.lastfm.albumArt?['small'] ? null
 
 	@property 'largeAlbumArt',
-		get: -> this.lastfm.albumArt['large'] ? null
+		get: -> this.lastfm.albumArt?['large'] ? null
 
 	constructor: () ->
 		this.loaded = false
@@ -93,6 +93,13 @@ class root.SongData
 		this.gs.url = data.Url
 
 		callback null, this
+
+	@clone: (song) ->
+		songdata = new SongData
+		songdata.gs = song.gs
+		songdata.lastfm = song.lastfm
+		songdata.loaded = song.loaded
+		return songdata
 
 	@create: (name, artist, callback) ->
 		songdata = new SongData

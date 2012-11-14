@@ -61,8 +61,8 @@
 		margin-left: -(@controlbar-width / 2);
 		padding: 8px 16px;
 
-		background: rgba(0,0,0, 0.9);
-		color: #fff;
+		background: rgba(0,0,0, 0.85);
+		color: @c-control-text;
 		border-radius: @player-corner-radius;
 
 		user-select: text;
@@ -72,6 +72,10 @@
 			height: 48px;
 			margin: 0 4px 0 8px;
 			vertical-align: bottom;
+		}
+
+		img.hasart {
+			border: 1px solid @c-slider-border;
 		}
 
 		div.info {
@@ -130,6 +134,15 @@
 
 		#player-info{
 			height: 24px;
+			width: @controlbar-width - 32px - (@button-width * 4) - 60px - 32px - 24px;
+
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+
+			.by {
+				color: @c-control-text-2;
+			}
 		}
 
 		#player-time {
@@ -158,6 +171,30 @@
 
 			&:hover .ui-slider-handle {
 				opacity: 1;
+			}
+		}
+
+		#ctrl-volume {
+			float: right;
+			height: 41px;
+			margin-top: 4px;
+
+			&:hover .ui-slider-handle {
+				opacity: 1;
+			}
+
+			.ui-slider-range {
+				background-color: transparent;
+				.horizontal-bars(@c-slider-fill, @c-slider-border, 4px, 75%);
+			}
+
+			&:before {
+				content: ' ';
+				display: block;
+				width: 48px;
+				height: 48px;
+				margin-left: -32px;
+				background: url('../img/volume.svg');
 			}
 		}
 

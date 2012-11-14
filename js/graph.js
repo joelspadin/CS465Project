@@ -99,15 +99,15 @@
 
     SongData.property('albumArt', {
       get: function() {
-        var _ref;
-        return (_ref = this.lastfm.albumArt['small']) != null ? _ref : null;
+        var _ref, _ref1;
+        return (_ref = (_ref1 = this.lastfm.albumArt) != null ? _ref1['small'] : void 0) != null ? _ref : null;
       }
     });
 
     SongData.property('largeAlbumArt', {
       get: function() {
-        var _ref;
-        return (_ref = this.lastfm.albumArt['large']) != null ? _ref : null;
+        var _ref, _ref1;
+        return (_ref = (_ref1 = this.lastfm.albumArt) != null ? _ref1['large'] : void 0) != null ? _ref : null;
       }
     });
 
@@ -215,6 +215,15 @@
       });
     };
 
+    SongData.clone = function(song) {
+      var songdata;
+      songdata = new SongData;
+      songdata.gs = song.gs;
+      songdata.lastfm = song.lastfm;
+      songdata.loaded = song.loaded;
+      return songdata;
+    };
+
     SongData.create = function(name, artist, callback) {
       var data, err, songdata, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
@@ -235,7 +244,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 103
+          lineno: 110
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -252,7 +261,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 107
+            lineno: 114
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -282,7 +291,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 118
+          lineno: 125
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -304,7 +313,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 127
+            lineno: 134
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -367,7 +376,7 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 168
+          lineno: 175
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -413,7 +422,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 178
+                  lineno: 185
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -462,7 +471,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 195
+              lineno: 202
             })));
             __iced_deferrals._fulfill();
           })(function() {

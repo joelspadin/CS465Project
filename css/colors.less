@@ -5,6 +5,8 @@
 
 @c-text: #000;
 @c-background: #f0f0f0;
+@c-control-text: #fff;
+@c-control-text-2: #aaa;
 
 @c-progress: #000;
 
@@ -23,8 +25,21 @@
 @c-search-text-hover: #000;
 @c-search-text-active: #fff;
 
-@c-slider-border: #fff;
+@c-slider-border: #000;
 @c-slider-background: #555;
 @c-slider-fill: #3372F1;
-@c-slider-handle: #3372F1;
+@c-slider-handle: #000;
 @c-slider-handle-border: #fff;
+
+
+.horizontal-bars (@color: #3372F1, @background: #fff, @size: 4px, @cover: 50%) {
+	background-image: linear-gradient(0deg, 
+		@color 0,
+		@color @cover,
+		@background @cover,
+		@background 100%);
+
+	background-repeat: repeat;
+	background-size: 100% @size;
+	background-position: center bottom;
+}
