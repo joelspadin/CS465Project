@@ -58,6 +58,9 @@
 #view-player #player-controls img.hasart {
   border: 1px solid #000000;
 }
+#view-player #player-controls #album-link:hover img {
+  border: 1px solid #3372f1;
+}
 #view-player #player-controls div.info {
   display: inline-block;
 }
@@ -106,6 +109,13 @@
 }
 #view-player #player-controls #player-info .by {
   color: #aaaaaa;
+}
+#view-player #player-controls #player-info a {
+  color: #ffffff;
+  text-decoration: none;
+}
+#view-player #player-controls #player-info a:hover {
+  text-decoration: underline;
 }
 #view-player #player-controls #player-time {
   height: 23px;

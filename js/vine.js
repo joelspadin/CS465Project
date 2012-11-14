@@ -417,6 +417,7 @@
         playpause: $('#btn-playpause'),
         next: $('#btn-next'),
         art: $('#album-art'),
+        albumlink: $('#album-link'),
         song: $('#song-name'),
         artist: $('#artist-name'),
         currentTime: $('#current-time'),
@@ -584,15 +585,29 @@
     };
 
     VinePlayer.prototype.updateSongInfo = function() {
-      var _ref, _ref1;
-      this.elems.song.text((_ref = currentSong != null ? currentSong.song.name : void 0) != null ? _ref : 'No Title');
-      this.elems.artist.text((_ref1 = currentSong != null ? currentSong.song.artist : void 0) != null ? _ref1 : 'No Artist');
-      if ((currentSong != null ? currentSong.song.albumArt : void 0) != null) {
-        this.elems.art.attr('src', currentSong.song.albumArt);
-        return this.elems.art.addClass('hasart');
+      var song, _ref, _ref1, _ref2, _ref3;
+      song = currentSong != null ? currentSong.song : void 0;
+      if ((song != null ? song.url : void 0) != null) {
+        this.elems.song.empty().append($('<a target=_blank>').attr('href', song.url).text((_ref = song != null ? song.name : void 0) != null ? _ref : 'No Title'));
+      } else {
+        this.elems.song.empty().text((_ref1 = song != null ? song.name : void 0) != null ? _ref1 : 'No Title');
+      }
+      if ((song != null ? song.artistUrl : void 0) != null) {
+        this.elems.artist.empty().append($('<a target=_blank>').attr('href', song.artistUrl).text((_ref2 = song != null ? song.artist : void 0) != null ? _ref2 : 'No Artist'));
+      } else {
+        this.elems.artist.empty().text((_ref3 = song != null ? song.artist : void 0) != null ? _ref3 : 'No Artist');
+      }
+      if ((song != null ? song.albumArt : void 0) != null) {
+        this.elems.art.attr('src', song != null ? song.albumArt : void 0);
+        this.elems.art.addClass('hasart');
       } else {
         this.elems.art.attr('src', '/cs465/img/no-album.svg');
-        return this.elems.art.removeClass('hasart');
+        this.elems.art.removeClass('hasart');
+      }
+      if ((song != null ? song.albumUrl : void 0) != null) {
+        return this.elems.albumlink.attr('href', song.albumUrl);
+      } else {
+        return this.elems.albumlink.removeAttr('href');
       }
     };
 
@@ -627,7 +642,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 434
+          lineno: 452
         })));
         __iced_deferrals._fulfill();
       })(function() {

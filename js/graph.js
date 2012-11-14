@@ -90,10 +90,24 @@
       }
     });
 
+    SongData.property('artistUrl', {
+      get: function() {
+        var _ref;
+        return (_ref = this.lastfm.artistUrl) != null ? _ref : null;
+      }
+    });
+
     SongData.property('album', {
       get: function() {
         var _ref;
         return (_ref = this.lastfm.album) != null ? _ref : this.gs.album;
+      }
+    });
+
+    SongData.property('albumUrl', {
+      get: function() {
+        var _ref;
+        return (_ref = this.lastfm.albumUrl) != null ? _ref : null;
       }
     });
 
@@ -123,7 +137,10 @@
         mbid: null,
         name: null,
         artist: null,
+        artistUrl: null,
         album: null,
+        albumArt: null,
+        albumUrl: null,
         url: null
       };
       this.gs = {
@@ -157,11 +174,11 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 61
+          lineno: 70
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        var _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+        var _ref, _ref1, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
         if (err) {
           callback(err, _this);
           return;
@@ -170,8 +187,10 @@
         _this.lastfm.mbid = (_ref = data.track.mbid) != null ? _ref : null;
         _this.lastfm.name = data.track.name;
         _this.lastfm.artist = (_ref1 = (_ref2 = data.track.artist) != null ? _ref2.name : void 0) != null ? _ref1 : null;
-        _this.lastfm.album = (_ref3 = (_ref4 = data.track.album) != null ? _ref4.title : void 0) != null ? _ref3 : null;
-        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref5 = (_ref6 = data.track.album) != null ? _ref6.image : void 0) != null ? _ref5 : data.image);
+        _this.lastfm.artistUrl = (_ref3 = (_ref4 = data.track.artist) != null ? _ref4.url : void 0) != null ? _ref3 : null;
+        _this.lastfm.album = (_ref5 = (_ref6 = data.track.album) != null ? _ref6.title : void 0) != null ? _ref5 : null;
+        _this.lastfm.albumArt = SongData.parseLastFMImage((_ref7 = (_ref8 = data.track.album) != null ? _ref8.image : void 0) != null ? _ref7 : data.image);
+        _this.lastfm.albumUrl = (_ref9 = (_ref10 = data.track.album) != null ? _ref10.url : void 0) != null ? _ref9 : null;
         _this.lastfm.url = data.track.url;
         return callback(null, _this);
       });
@@ -194,7 +213,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 80
+          lineno: 91
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -244,7 +263,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 110
+          lineno: 121
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -261,7 +280,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 114
+            lineno: 125
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -291,7 +310,7 @@
               return data = arguments[1];
             };
           })(),
-          lineno: 125
+          lineno: 136
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -313,7 +332,7 @@
                 return data = arguments[1];
               };
             })(),
-            lineno: 134
+            lineno: 145
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -325,14 +344,16 @@
     };
 
     SongData.fromLastFMData = function(data) {
-      var songdata, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var songdata, _ref, _ref1, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       songdata = new SongData;
       songdata.lastfm.id = data.id;
       songdata.lastfm.mbid = (_ref = data.mbid) != null ? _ref : null;
       songdata.lastfm.name = data.name;
       songdata.lastfm.artist = (_ref1 = (_ref2 = data.artist) != null ? _ref2.name : void 0) != null ? _ref1 : null;
-      songdata.lastfm.album = (_ref3 = (_ref4 = data.album) != null ? _ref4.title : void 0) != null ? _ref3 : null;
-      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref5 = (_ref6 = data.album) != null ? _ref6.image : void 0) != null ? _ref5 : data.image);
+      songdata.lastfm.artistUrl = (_ref3 = (_ref4 = data.artist) != null ? _ref4.url : void 0) != null ? _ref3 : null;
+      songdata.lastfm.album = (_ref5 = (_ref6 = data.album) != null ? _ref6.title : void 0) != null ? _ref5 : null;
+      songdata.lastfm.albumUrl = (_ref7 = (_ref8 = data.album) != null ? _ref8.url : void 0) != null ? _ref7 : null;
+      songdata.lastfm.albumArt = SongData.parseLastFMImage((_ref9 = (_ref10 = data.album) != null ? _ref10.image : void 0) != null ? _ref9 : data.image);
       return songdata;
     };
 
@@ -376,7 +397,7 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 175
+          lineno: 188
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -422,7 +443,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 185
+                  lineno: 198
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -471,7 +492,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 202
+              lineno: 215
             })));
             __iced_deferrals._fulfill();
           })(function() {

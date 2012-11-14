@@ -25,8 +25,14 @@ class root.SongData
 	@property 'artist',
 		get: -> this.lastfm.artist ? this.gs.artist
 
+	@property 'artistUrl',
+		get: -> this.lastfm.artistUrl ? null
+
 	@property 'album',
 		get: -> this.lastfm.album ? this.gs.album
+
+	@property 'albumUrl',
+		get: -> this.lastfm.albumUrl ? null
 
 	@property 'albumArt',
 		get: -> this.lastfm.albumArt?['small'] ? null
@@ -42,7 +48,10 @@ class root.SongData
 			mbid: null
 			name: null
 			artist: null
+			artistUrl: null
 			album: null
+			albumArt: null
+			albumUrl: null
 			url: null
 
 		this.gs = 
@@ -69,8 +78,10 @@ class root.SongData
 		this.lastfm.mbid = data.track.mbid ? null
 		this.lastfm.name = data.track.name
 		this.lastfm.artist = data.track.artist?.name ? null
+		this.lastfm.artistUrl = data.track.artist?.url ? null
 		this.lastfm.album = data.track.album?.title ? null
 		this.lastfm.albumArt = SongData.parseLastFMImage(data.track.album?.image ? data.image)
+		this.lastfm.albumUrl = data.track.album?.url ? null
 		this.lastfm.url = data.track.url
 
 		callback null, this
@@ -145,7 +156,9 @@ class root.SongData
 		songdata.lastfm.mbid = data.mbid ? null
 		songdata.lastfm.name = data.name
 		songdata.lastfm.artist = data.artist?.name ? null
+		songdata.lastfm.artistUrl = data.artist?.url ? null
 		songdata.lastfm.album = data.album?.title ? null
+		songdata.lastfm.albumUrl = data.album?.url ? null
 		songdata.lastfm.albumArt = SongData.parseLastFMImage(data.album?.image ? data.image)
 		return songdata
 

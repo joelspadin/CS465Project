@@ -78,6 +78,10 @@
 			border: 1px solid @c-slider-border;
 		}
 
+		#album-link:hover img {
+			border: 1px solid @c-slider-fill;
+		}
+
 		div.info {
 			display: inline-block;
 		}
@@ -142,6 +146,15 @@
 
 			.by {
 				color: @c-control-text-2;
+			}
+
+			a {
+				color: @c-control-text;
+				text-decoration: none;
+
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 		}
 

@@ -267,6 +267,7 @@ class VinePlayer
 			playpause: $ '#btn-playpause'
 			next: $ '#btn-next'
 			art: $ '#album-art'
+			albumlink: $ '#album-link'
 			song: $ '#song-name'
 			artist: $ '#artist-name'
 			currentTime: $ '#current-time'
@@ -401,14 +402,31 @@ class VinePlayer
 
 	# updates the player controls
 	updateSongInfo: () =>
-		@elems.song.text currentSong?.song.name ? 'No Title'
-		@elems.artist.text currentSong?.song.artist ? 'No Artist'
-		if currentSong?.song.albumArt?
-			@elems.art.attr 'src', currentSong.song.albumArt 
+
+		song = currentSong?.song
+		if song?.url?
+			@elems.song.empty().append $('<a target=_blank>').attr('href', song.url)
+				.text(song?.name ? 'No Title')
+		else
+			@elems.song.empty().text(song?.name ? 'No Title')
+
+		if song?.artistUrl?
+			@elems.artist.empty().append $('<a target=_blank>').attr('href', song.artistUrl)
+				.text(song?.artist ? 'No Artist')
+		else
+			@elems.artist.empty().text(song?.artist ? 'No Artist')
+
+		if song?.albumArt?
+			@elems.art.attr 'src', song?.albumArt 
 			@elems.art.addClass 'hasart'
 		else
 			@elems.art.attr 'src', '/cs465/img/no-album.svg'
 			@elems.art.removeClass 'hasart'
+
+		if song?.albumUrl?
+			@elems.albumlink.attr 'href', song.albumUrl
+		else
+			@elems.albumlink.removeAttr 'href'
 
 		# TODO: update song duration
 
