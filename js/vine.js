@@ -409,6 +409,8 @@
 
       this.play = __bind(this.play, this);
 
+      this._expand = __bind(this._expand, this);
+
       this.updatePosition = __bind(this.updatePosition, this);
 
       this._startUpdate = __bind(this._startUpdate, this);
@@ -609,6 +611,36 @@
       }
     });
 
+    VinePlayer.prototype._expand = function(node, callback) {
+      var err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          funcname: "VinePlayer._expand"
+        });
+        node.expand((__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              return err = arguments[0];
+            };
+          })(),
+          lineno: 405
+        })));
+        __iced_deferrals._fulfill();
+      })(function() {
+        if (err) {
+          console.log('ERROR', err);
+          return typeof callback === "function" ? callback(err, null) : void 0;
+        } else {
+          update(node);
+          return callback(null, node);
+        }
+      });
+    };
+
     VinePlayer.prototype.play = function() {
       if (!this.playing) {
         this._stopUpdate();
@@ -673,19 +705,17 @@
           parent: ___iced_passed_deferral,
           funcname: "VinePlayer.enqueue"
         });
-        songnode.expand((__iced_deferrals.defer({
+        _this._expand(songnode, (__iced_deferrals.defer({
           assign_fn: (function() {
             return function() {
               return err = arguments[0];
             };
           })(),
-          lineno: 462
+          lineno: 471
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        if (err) {} else {
-          return update(songnode);
-        }
+        if (!err) return _this.updateAutomaticSong();
       });
     };
 
@@ -694,43 +724,72 @@
       return update(songnode);
     };
 
-    VinePlayer.prototype.enqueueAutomaticSong = function() {
+    VinePlayer.prototype.enqueueAutomaticSong = function(callback) {
       var err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      this.enqueue(autoQueuedSong);
+      (function(__iced_k) {
+        if (!(autoQueuedSong != null)) {
+          (function(__iced_k) {
+            __iced_deferrals = new iced.Deferrals(__iced_k, {
+              parent: ___iced_passed_deferral,
+              funcname: "VinePlayer.enqueueAutomaticSong"
+            });
+            _this.updateAutomaticSong((__iced_deferrals.defer({
+              assign_fn: (function() {
+                return function() {
+                  return err = arguments[0];
+                };
+              })(),
+              lineno: 484
+            })));
+            __iced_deferrals._fulfill();
+          })(__iced_k);
+        } else {
+          return __iced_k();
+        }
+      })(function() {
+        if (autoQueuedSong != null) {
+          _this.enqueue(autoQueuedSong);
+          return callback(null, autoQueuedSong);
+        } else {
+          console.log('Error: failed to auto-queue a song');
+          return callback(new Error('Failed to auto-queue a song'), null);
+        }
+      });
+    };
+
+    VinePlayer.prototype.updateAutomaticSong = function(callback) {
+      var choices, err, i, parent, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      if (queue.length > 0) {
+        parent = queue[queue.length - 1];
+      } else {
+        parent = this.currentSong;
+      }
       (function(__iced_k) {
         __iced_deferrals = new iced.Deferrals(__iced_k, {
           parent: ___iced_passed_deferral,
-          funcname: "VinePlayer.enqueueAutomaticSong"
+          funcname: "VinePlayer.updateAutomaticSong"
         });
-        autoQueuedSong.expand((__iced_deferrals.defer({
+        _this._expand(parent, (__iced_deferrals.defer({
           assign_fn: (function() {
             return function() {
               return err = arguments[0];
             };
           })(),
-          lineno: 476
+          lineno: 497
         })));
         __iced_deferrals._fulfill();
       })(function() {
-        if (err) {} else {
-          return _this.updateAutomaticSong();
-        }
+        choices = parent.children;
+        i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1);
+        autoQueuedSong = choices[i];
+        return update(autoQueuedSong);
       });
-    };
-
-    VinePlayer.prototype.updateAutomaticSong = function() {
-      var choices, i;
-      if (queue.length > 0) {
-        choices = queue[queue.length - 1].children;
-      } else {
-        choices = this.currentSong.children;
-      }
-      i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1);
-      autoQueuedSong = choices[i];
-      return update(autoQueuedSong);
     };
 
     VinePlayer.prototype.isQueued = function(songnode) {
@@ -750,19 +809,56 @@
     };
 
     VinePlayer.prototype.playNext = function() {
-      var lastPlayed;
+      var err, lastPlayed, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
       lastPlayed = currentSong;
       currentSong = queue.shift();
       if (this.currentSong != null) {
+        console.log('now playing', this.currentSong);
         playedSongs.push(lastPlayed);
         update(lastPlayed);
         update(this.currentSong);
         this.updateSongInfo();
         this.updatePosition(0);
-        return this.play();
+        this.play();
+        (function(__iced_k) {
+          __iced_deferrals = new iced.Deferrals(__iced_k, {
+            parent: ___iced_passed_deferral,
+            funcname: "VinePlayer.playNext"
+          });
+          _this._expand(_this.currentSong, (__iced_deferrals.defer({
+            assign_fn: (function() {
+              return function() {
+                return err = arguments[0];
+              };
+            })(),
+            lineno: 533
+          })));
+          __iced_deferrals._fulfill();
+        })(function() {
+          return __iced_k(_this.updateAutomaticSong());
+        });
       } else {
-        this.enqueueAutomaticSong();
-        return this.playNext();
+        currentSong = lastPlayed;
+        (function(__iced_k) {
+          __iced_deferrals = new iced.Deferrals(__iced_k, {
+            parent: ___iced_passed_deferral,
+            funcname: "VinePlayer.playNext"
+          });
+          _this.enqueueAutomaticSong((__iced_deferrals.defer({
+            assign_fn: (function() {
+              return function() {
+                return err = arguments[0];
+              };
+            })(),
+            lineno: 538
+          })));
+          __iced_deferrals._fulfill();
+        })(function() {
+          return __iced_k(err ? console.log('Error: no song to play next') : _this.playNext());
+        });
       }
     };
 

@@ -401,6 +401,16 @@ class VinePlayer
 	@property 'playedSongs',
 		get: -> playedSongs
 
+	_expand: (node, callback) =>
+		await node.expand (defer err)
+		if err
+			# TODO: show an error
+			console.log('ERROR', err)
+			callback?(err, null)
+		else
+			update(node)
+			callback(null, node)
+
 	play: =>
 		if not @playing
 			@_stopUpdate()
@@ -459,31 +469,35 @@ class VinePlayer
 		queue.remove(songnode)
 		queue.push(songnode)
 		update(songnode)
-		await songnode.expand (defer err)
-		if err
-			# TODO: show an error message
-		else
-			update(songnode)
+		await @_expand(songnode, (defer err))
+		if not err
+			@updateAutomaticSong()
 
 	# removes the given song from the queue
 	dequeue: (songnode) =>
 		queue.remove(songnode)
 		update(songnode)
-		# TODO: update graph
 
-	enqueueAutomaticSong: () =>
-		@enqueue(autoQueuedSong)
-		await autoQueuedSong.expand (defer err)
-		if err
-			# TODO: show an error message
+	enqueueAutomaticSong: (callback) =>
+		if not autoQueuedSong?
+			await @updateAutomaticSong (defer err)
+
+		if autoQueuedSong?
+			@enqueue(autoQueuedSong)
+			callback(null, autoQueuedSong)
 		else
-			@updateAutomaticSong()
+			console.log('Error: failed to auto-queue a song')
+			callback(new Error('Failed to auto-queue a song'), null)
 
-	updateAutomaticSong: () =>
+	updateAutomaticSong: (callback) =>
 		if queue.length > 0
-			choices = queue[queue.length - 1].children
+			parent = queue[queue.length - 1]
 		else
-			choices = @currentSong.children
+			parent = @currentSong
+
+		await @_expand(parent, (defer err))
+
+		choices = parent.children
 		# dumb selection code. randomly pick a child and queue it
 		i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1)
 		autoQueuedSong = choices[i]
@@ -510,15 +524,22 @@ class VinePlayer
 		lastPlayed = currentSong
 		currentSong = queue.shift()
 		if @currentSong?
+			console.log('now playing', @currentSong)
 			playedSongs.push(lastPlayed)
 			update(lastPlayed)
 			update(@currentSong)
 			@updateSongInfo()
 			@updatePosition(0)
 			@play()
+			await @_expand(@currentSong, (defer err))
+			@updateAutomaticSong()
 		else
-			@enqueueAutomaticSong()
-			@playNext()
+			currentSong = lastPlayed
+			await @enqueueAutomaticSong (defer err)
+			if err
+				console.log('Error: no song to play next')
+			else
+				@playNext()
 
 	# restarts the current song or plays the previously played song
 	playPrevious: =>
