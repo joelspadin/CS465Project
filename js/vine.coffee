@@ -28,6 +28,7 @@ $ ->
 	# Listen for history changes and change views accordingly
 	History.Adapter.bind window, 'statechange', (e)->
 		state = History.getState()
+		document.title = 'Audio Vine'
 
 		if state.data.id? and state.data.id != vine.currentState and state.data.view?
 			console.log 'STATE', state.data.id, vine.currentState, state.data.id != vine.currentState, state

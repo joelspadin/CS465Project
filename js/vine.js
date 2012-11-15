@@ -66,6 +66,7 @@
     return History.Adapter.bind(window, 'statechange', function(e) {
       var state, _ref1;
       state = History.getState();
+      document.title = 'Audio Vine';
       if ((state.data.id != null) && state.data.id !== vine.currentState && (state.data.view != null)) {
         console.log('STATE', state.data.id, vine.currentState, state.data.id !== vine.currentState, state);
         vine.currentState = state.data.id;
@@ -139,7 +140,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 101
+          lineno: 102
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -158,7 +159,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 105
+              lineno: 106
             })));
             if (!err) results.push(data);
           }
@@ -217,7 +218,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 137
+              lineno: 138
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -234,7 +235,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 140
+              lineno: 141
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -642,7 +643,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 452
+          lineno: 453
         })));
         __iced_deferrals._fulfill();
       })(function() {
