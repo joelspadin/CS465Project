@@ -24,18 +24,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7"
-     inkscape:cx="113.02575"
-     inkscape:cy="24"
+     inkscape:zoom="3.5"
+     inkscape:cx="82.516717"
+     inkscape:cy="28.752731"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1600"
-     inkscape:window-height="848"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="784"
+     inkscape:window-height="832"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata3943">
     <rdf:RDF>
@@ -63,9 +63,9 @@
        inkscape:connector-curvature="0"
        id="path4876"
        d="m 65.5,16.5 0,15 10,-6 0,6 3,0 0,-15 -3,0 0,6 z"
-       style="fill:#ccffaa;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;fill-opacity:1" />
+       style="fill:#8cbee5;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;fill-opacity:1" />
     <path
-       style="fill:#55d400;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
+       style="fill:#3372f1;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
        d="m 113.5,16.5 0,15 10,-6 0,6 3,0 0,-15 -3,0 0,6 z"
        id="path5386"
        inkscape:connector-curvature="0"

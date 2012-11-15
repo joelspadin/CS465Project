@@ -4,6 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
 }
 #view-player #vine {
   position: absolute;
@@ -58,7 +59,7 @@
 #view-player #player-controls img.hasart {
   border: 1px solid #000000;
 }
-#view-player #player-controls #album-link:hover img {
+#view-player #player-controls #album-link:hover img.hasart {
   border: 1px solid #3372f1;
 }
 #view-player #player-controls div.info {
