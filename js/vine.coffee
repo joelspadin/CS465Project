@@ -1,6 +1,9 @@
 ﻿root = this
 History = root.History
 
+# dummy update function
+if not window.update?
+	window.update = () -> null
 
 $ ->
 	$('.search-box').each (i, box) -> new SearchBox(box)
@@ -324,9 +327,16 @@ class VinePlayer
 		queue = []
 		playedSongs = []
 		currentSong = firstSong
+		update(@currentSong)
 		@updateSongInfo()
 		@updatePosition(0)
 		@play()
+		await @currentSong.expand (defer err)
+		if err
+			# TODO: show an error message
+		else
+			update(@currentSong)
+			@updateAutomaticSong()
 
 	# timer to keep incrementing position while not receiving status messages
 	_interval: =>
@@ -367,6 +377,13 @@ class VinePlayer
 
 	@property 'currentSong',
 		get: -> currentSong
+
+	@property 'nextSong',
+		get: ->
+			if queue.length > 0
+				return queue[0]
+			else
+				return autoQueuedSong
 
 	@property 'position',
 		get: -> position
@@ -441,11 +458,17 @@ class VinePlayer
 	enqueue: (songnode) =>
 		queue.remove(songnode)
 		queue.push(songnode)
-		# TODO: update graph
+		update(songnode)
+		await songnode.expand (defer err)
+		if err
+			# TODO: show an error message
+		else
+			update(songnode)
 
 	# removes the given song from the queue
 	dequeue: (songnode) =>
 		queue.remove(songnode)
+		update(songnode)
 		# TODO: update graph
 
 	enqueueAutomaticSong: () =>
@@ -457,15 +480,22 @@ class VinePlayer
 			@updateAutomaticSong()
 
 	updateAutomaticSong: () =>
-		choices = queue[queue.length - 1].children
+		if queue.length > 0
+			choices = queue[queue.length - 1].children
+		else
+			choices = @currentSong.children
 		# dumb selection code. randomly pick a child and queue it
 		i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1)
 		autoQueuedSong = choices[i]
-		# TODO: update graph
+		update(autoQueuedSong)
 
 	# gets whether a song is in the queue
 	isQueued: (songnode) =>
 		return queue.contains(songnode)
+
+	# gets whether a song is the automatically selected next song
+	isAutoQueued: (songnode) =>
+		return autoQueuedSong == songnode
 
 	# gets whether a song is currently playing
 	isPlaying: (songnode) =>
@@ -481,6 +511,9 @@ class VinePlayer
 		currentSong = queue.shift()
 		if @currentSong?
 			playedSongs.push(lastPlayed)
+			update(lastPlayed)
+			update(@currentSong)
+			@updateSongInfo()
 			@updatePosition(0)
 			@play()
 		else
@@ -491,9 +524,12 @@ class VinePlayer
 	playPrevious: =>
 		if playedSongs.length > 0 and position < @goBackThreshold
 			# if there is a previous song and we are only a few seconds in, go back
+			lastPlayed = currentSong
 			queue.unshift(currentSong)
 			currentSong = playedSongs.pop()
-			# TODO: update graph
+			update(lastPlayed)
+			update(@currentSong)
+			@updateSongInfo()
 
 			@updatePosition(0)
 			if @playing
