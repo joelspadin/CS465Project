@@ -2,7 +2,12 @@
 
 	require_once 'tinysong.php';
 	
-	$api_key = '121900a05afcb2d386f0959aac76304b';
+	$keys = [
+		'67b088cec7b78a5b29a42a7124928c87',
+		'd9ec40ec6e1913c6904b99fcf469bbcd',
+		'121900a05afcb2d386f0959aac76304b',
+	];
+	$api_key = $keys[rand(0, count($keys) - 1)];
 	
 	$query = $_GET['query'];
 	if (isset($_GET['limit']))

@@ -1,0 +1,14 @@
+.nodeBG {
+	stroke-width: 2px;
+}
+
+.nodeControls {
+	font: 14px/16px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
+/* 	opacity: 0.0; */
+}
+
+.link {
+	fill: none;
+	stroke: black;
+	
+}
