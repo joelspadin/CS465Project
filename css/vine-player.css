@@ -42,10 +42,11 @@
 #view-player #player-controls {
   left: 50%;
   bottom: 16px;
-  width: 500px;
-  margin-left: -250px;
+  width: 502px;
+  margin-left: -251px;
   padding: 8px 16px;
   background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #000000;
   color: #ffffff;
   border-radius: 8px;
   user-select: text;
@@ -103,7 +104,7 @@
 }
 #view-player #player-controls #player-info {
   height: 24px;
-  width: 248px;
+  width: 250px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -134,7 +135,7 @@
   margin-left: 3px;
 }
 #view-player #player-controls #player-time #ctrl-seek {
-  width: 184px;
+  width: 186px;
   display: inline-block;
 }
 #view-player #player-controls #player-time:hover .ui-slider-handle {

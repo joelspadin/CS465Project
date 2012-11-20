@@ -31,14 +31,13 @@ $(function () {
 		.on("mousewheel.zoom", changeLevel)
 		.append("svg:g")
 			.attr("transform", "translate(" + margins[3] + "," + margins[0] + ")");
-			
-	vis.append('svg:clipPath')
-		.attr('id', 'clip')
-		.append('svg:rect')
-		.attr('x', '1px').attr('y', '65px').attr('width', '200px').attr('height', '16px');
 	
 	function updateNode(err, node) {
 		update(node);
+	}
+
+	function getNodeClip(d) {
+		return 'url(#clip-' + d.id + ')';
 	}
 	
 	window.update = function(source) {
@@ -63,12 +62,19 @@ $(function () {
 		var node = vis.selectAll("g.node")
 			.data(nodes, function(d) { return d.id || (d.id = ++i); });
 		
+		var nodeClip = node.enter().append('svg:clipPath')
+			.attr('transform', 'translate(0, 0)')
+			.attr('id', function(d) { return 'clip-' + d.id; })
+			.append('svg:rect')
+				.attr('width', nodeWidth)
+				.attr('height', nodeHeight - 2)
+
 		var nodeEnter = node.enter().append("svg:g")
 			.attr("class", "node")
 			.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
 			.on("click", nodeClick)
 			.on("mouseover", nodeOver);
-		
+
 		nodeEnter.append("svg:rect")
 			.attr("height", nodeHeight)
 			.attr("width", nodeWidth)
@@ -91,24 +97,31 @@ $(function () {
 		nodeEnter.append("svg:text")
 			.attr("x", "65px")
 			.attr("y", "26px")
-			.attr("class", "name")
-			.text(function(d) { 
-				var a = d.song.name;
-				return a.length > 12 ? a.slice(0, 12) + "..." : a;
+			.attr('width', '130px')
+			.attr("class", "ellipsis name")
+			.attr('clip-path', getNodeClip)
+			.text(function(d) {
+				return d.song.name || 'No Title';
+				//var a = d.song.name;
+				//return a.length > 12 ? a.slice(0, 12) + "..." : a;
 			});
 		
 		nodeEnter.append("svg:text")
 			.attr("x", "65px")
 			.attr("y", "51px")
-			.attr("class", "artist")
-			.text(function(d) { 
-				var a = d.song.artist;
-				return a.length > 12 ? a.slice(0, 12) + "..." : a;
+			.attr('width', '130px')
+			.attr("class", "ellipsis artist")
+			.attr('clip-path', getNodeClip)
+			.text(function(d) {
+				return d.song.artist || 'No Artist';
+				//var a = d.song.artist;
+				//return a.length > 12 ? a.slice(0, 12) + "..." : a;
 			});
 		
 		
 		var controls = nodeEnter.append("svg:g")
-			.attr("class", "nodeControls");		
+			.attr("class", "nodeControls")
+			.attr('clip-path', getNodeClip);
 		
 		controls.append("svg:rect")
 			.attr("width", "64px")
@@ -188,6 +201,9 @@ $(function () {
 					else if (vine.player.isQueued(d)) {
 						return "purple";
 					}
+					else if (vine.player.isAutoQueued(d)) {
+						return "#D9ABD9";
+					}
 					else if (vine.player.wasPlayed(d)) {
 						return "blue";
 					}
@@ -201,6 +217,9 @@ $(function () {
 					}
 					else if (vine.player.isQueued(d)) {
 						return "#D9ABD9";
+					}
+					else if (vine.player.isAutoQueued(d)) {
+						return "#f9cdf9";
 					}
 					else if (vine.player.wasPlayed(d)) {
 						return "#A8A8FF";
@@ -236,7 +255,7 @@ $(function () {
 				})
 				.delay(duration)
 				.duration(0);
-			
+
 			nodeUpdate.filter(function(d) {return d.expanded == 1;}).selectAll("g.nodeControls").select("image")
 				.attr("height", "24px")
 				.attr("width", "200px");
@@ -246,6 +265,13 @@ $(function () {
 			
 			nodeUpdate.filter(function(d) {return d.expanded == 0;}).selectAll("g.nodeControls").select("image")
 				.attr("height", "0px");
+
+			nodeUpdate.each(function(d) {
+				var h = d.expanded ? nodeHeight + 24 : nodeHeight - 2;
+				vis.select('#clip-' + d.id).select('rect').transition()
+					.duration(duration)
+					.attr('height', h);
+			});
 			
 		}
 		else {
@@ -269,6 +295,13 @@ $(function () {
 			nodeUpdate.filter(function(d) {return d.expanded == 1;}).selectAll("g.nodeControls").selectAll("image")
 				.attr("height", "0px")
 				.attr("width", "66px");
+
+			nodeUpdate.each(function(d) {
+				var h = nodeHeight - 2;
+				vis.select('#clip-' + d.id).select('rect').transition()
+					.duration(duration)
+					.attr('height', h);
+			});
 			
 		}
 		
@@ -340,7 +373,7 @@ $(function () {
 	
 	
 	function nodeClick(d) {
-		d.expand(updateNode);
+		//d.expand(updateNode);
 	}
 	
 	function nodeOver(d) {

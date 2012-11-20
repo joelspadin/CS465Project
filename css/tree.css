@@ -4,11 +4,17 @@
 
 .nodeControls {
 	font: 14px/16px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
-/* 	opacity: 0.0; */
+	/* 	opacity: 0.0; */
 }
 
 .link {
 	fill: none;
 	stroke: black;
-	
+}
+
+text.ellipsis {
+	-ms-text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
