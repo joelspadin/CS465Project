@@ -66,7 +66,8 @@
 
     SongData.property('id', {
       get: function() {
-        return this.lastfm.id;
+        var _ref;
+        return (_ref = this.gs.id) != null ? _ref : this.lastfm.id;
       }
     });
 

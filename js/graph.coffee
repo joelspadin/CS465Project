@@ -14,7 +14,7 @@ awaitable = (func) ->
 
 class root.SongData
 	@property 'id',
-		get: -> this.lastfm.id
+		get: -> this.gs.id ? this.lastfm.id
 
 	@property 'mbid',
 		get: -> this.lastfm.mbid
