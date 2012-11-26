@@ -96,29 +96,27 @@ window.addEventListener('load', function() {
 	}
 
 	gs.setSongStatusCallback(function(e) {
+		console.log(e);
 		if (e.song) {
-			console.log(e);
-
-			if (playWhenLoadedSong == e.song.songID) {
-				window.clearInterval(playWhenLoadedTimer);
-				playWhenLoadedSong = -1;
-
-				if (firstPlayHacketyHack) {
-					window.$('#play-pause').click();
-					firstPlayHacketyHack = false;
-				} else
-					gs.play();
-				console.log('AudioVine: Played next song');
-			}
-
-			var data = getSongStatus(e.song);
-			data.action = 'sync';
-			oex.postMessage(data);
-		} else {
-			if (ignoreFirstNullSong)
-				ignoreFirstNullSong = false;
-			else
+			if (e.status === 'completed') {
 				oex.postMessage({ action: 'song end' });
+			} else {
+				if (playWhenLoadedSong == e.song.songID) {
+					window.clearInterval(playWhenLoadedTimer);
+					playWhenLoadedSong = -1;
+
+					if (firstPlayHacketyHack) {
+						window.$('#play-pause').click();
+						firstPlayHacketyHack = false;
+					} else
+						gs.play();
+					console.log('AudioVine: Played next song');
+				}
+
+				var data = getSongStatus(e.song);
+				data.action = 'sync';
+				oex.postMessage(data);
+			}
 		}
 	});
 

@@ -878,6 +878,9 @@
         lastPlayed = currentSong;
         queue.unshift(currentSong);
         currentSong = playedSongs.pop();
+        if (typeof vine !== "undefined" && vine !== null) {
+          vine.grooveshark.enqueue(this.currentSong);
+        }
         update(lastPlayed);
         update(this.currentSong);
         this.updateSongInfo();

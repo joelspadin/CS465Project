@@ -550,6 +550,7 @@ class VinePlayer
 			lastPlayed = currentSong
 			queue.unshift(currentSong)
 			currentSong = playedSongs.pop()
+			vine?.grooveshark.enqueue(@currentSong)
 			update(lastPlayed)
 			update(@currentSong)
 			@updateSongInfo()
