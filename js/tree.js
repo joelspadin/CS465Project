@@ -361,8 +361,9 @@ $(function () {
 	};
 	
 	function pan() {
+		//console.log(d3.event);
 		vis.attr("transform", "translate(" + d3.event.translate + ")");
-		console.log(d3.event.translate);
+		//console.log(d3.event.translate);
 		update(vine.rootnode);
 	}
 	

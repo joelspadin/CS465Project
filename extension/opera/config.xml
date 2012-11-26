@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" 
+		  version="1.3" 
+		  defaultlocale="en" 
+		  id="extensions:audio-vine-player">
+	<name>Audio Vine Player</name>
+	<description xml:lang="en">
+		Makes Audio Vine actually work in Opera
+	</description>
+	<author href="http://chaosinacan.com/">Joel Spadin</author>
+	<icon src="img/icon.png" />
+	
+	<access origin="grooveshark.com" />
+	<access origin="audio-vine.com" />
+	<access origin="localhost" />
+</widget>

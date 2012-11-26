@@ -331,6 +331,7 @@ class VinePlayer
 		@updateSongInfo()
 		@updatePosition(0)
 		@play()
+		vine?.grooveshark.enqueue(currentSong)
 		await @currentSong.expand (defer err)
 		if err
 			# TODO: show an error message
@@ -363,7 +364,7 @@ class VinePlayer
 		set: (val) -> 
 			volume = Math.min(1, Math.max(0, val))
 			@elems.volume.slider { value: volume }
-			# TODO: update volume control
+			vine?.grooveshark.setVolume(volume)
 
 	@property 'playing',
 		get: -> playing
@@ -415,18 +416,18 @@ class VinePlayer
 		if not @playing
 			@_stopUpdate()
 			@_startUpdate()
-			# TODO: start playing
 			@playing = true
+			vine?.grooveshark.play()
 
 	pause: =>
 		if @playing
 			@_stopUpdate()
-			# TODO: stop playing
 			@playing = false
+			vine?.grooveshark.pause()
 
 	seek: (time) =>
 		@updatePosition(time)
-		# TODO: seek to position in song
+		vine?.grooveshark.seek(time)
 
 	# updates the player controls
 	updateSongInfo: () =>
@@ -531,6 +532,7 @@ class VinePlayer
 			@updateSongInfo()
 			@updatePosition(0)
 			@play()
+			vine?.grooveshark.enqueue(@currentSong)
 			await @_expand(@currentSong, (defer err))
 			@updateAutomaticSong()
 		else

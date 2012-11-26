@@ -491,6 +491,9 @@
       this.updateSongInfo();
       this.updatePosition(0);
       this.play();
+      if (typeof vine !== "undefined" && vine !== null) {
+        vine.grooveshark.enqueue(currentSong);
+      }
       (function(__iced_k) {
         __iced_deferrals = new iced.Deferrals(__iced_k, {
           parent: ___iced_passed_deferral,
@@ -502,7 +505,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 334
+          lineno: 335
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -544,9 +547,10 @@
       },
       set: function(val) {
         volume = Math.min(1, Math.max(0, val));
-        return this.elems.volume.slider({
+        this.elems.volume.slider({
           value: volume
         });
+        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.setVolume(volume) : void 0;
       }
     });
 
@@ -627,7 +631,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 405
+          lineno: 406
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -645,19 +649,22 @@
       if (!this.playing) {
         this._stopUpdate();
         this._startUpdate();
-        return this.playing = true;
+        this.playing = true;
+        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.play() : void 0;
       }
     };
 
     VinePlayer.prototype.pause = function() {
       if (this.playing) {
         this._stopUpdate();
-        return this.playing = false;
+        this.playing = false;
+        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.pause() : void 0;
       }
     };
 
     VinePlayer.prototype.seek = function(time) {
-      return this.updatePosition(time);
+      this.updatePosition(time);
+      return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.seek(time) : void 0;
     };
 
     VinePlayer.prototype.updateSongInfo = function() {
@@ -711,7 +718,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 471
+          lineno: 472
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -742,7 +749,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 484
+              lineno: 485
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -781,7 +788,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 497
+          lineno: 498
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -823,6 +830,9 @@
         this.updateSongInfo();
         this.updatePosition(0);
         this.play();
+        if (typeof vine !== "undefined" && vine !== null) {
+          vine.grooveshark.enqueue(this.currentSong);
+        }
         (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
             parent: ___iced_passed_deferral,
@@ -834,7 +844,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 533
+            lineno: 535
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -853,7 +863,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 538
+            lineno: 540
           })));
           __iced_deferrals._fulfill();
         })(function() {

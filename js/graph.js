@@ -471,6 +471,7 @@
       this.parent = parent != null ? parent : null;
       this.children = [];
       this._expanded = false;
+      this.favorited = false;
     }
 
     SongNode.prototype.expand = function(callback) {
@@ -493,7 +494,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 215
+              lineno: 217
             })));
             __iced_deferrals._fulfill();
           })(function() {

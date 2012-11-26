@@ -209,6 +209,8 @@ class root.SongNode
 		this.children = []
 		this._expanded = false
 
+		this.favorited = false
+
 	expand: (callback) =>
 		if not this._expanded
 			items = []
