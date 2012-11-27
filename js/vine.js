@@ -640,6 +640,7 @@
           return typeof callback === "function" ? callback(err, null) : void 0;
         } else {
           update(node);
+          checkOverlap(vine.rootnode);
           return callback(null, node);
         }
       });
@@ -718,7 +719,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 472
+          lineno: 473
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -749,7 +750,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 485
+              lineno: 486
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -788,7 +789,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 498
+          lineno: 499
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -844,7 +845,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 535
+            lineno: 536
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -863,7 +864,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 540
+            lineno: 541
           })));
           __iced_deferrals._fulfill();
         })(function() {

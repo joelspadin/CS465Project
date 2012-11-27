@@ -410,6 +410,7 @@ class VinePlayer
 			callback?(err, null)
 		else
 			update(node)
+			checkOverlap(vine.rootnode)
 			callback(null, node)
 
 	play: =>
