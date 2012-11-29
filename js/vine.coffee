@@ -76,6 +76,8 @@ root.vine =
 	# coordinates between the graph, view controls, and Grooveshark
 	player: null
 
+	timesAutomaticallyChosen: 0
+
 	# updates the URL history
 	pushState: (state, path) ->
 		vine.currentState += 1
@@ -329,7 +331,6 @@ class VinePlayer
 
 	# resets the player starting with a given song
 	init: (firstSong) =>
-		console.log('ROOT', vine.rootnode)
 		vine.rootnode.expanded = true
 		queue = []
 		playedSongs = []
@@ -338,7 +339,7 @@ class VinePlayer
 		@updateSongInfo()
 		@updatePosition(0)
 		@play()
-		vine?.grooveshark.enqueue(currentSong)
+		vine?.grooveshark?.enqueue(currentSong)
 		await @currentSong.expand (defer err)
 		if err
 			# TODO: show an error message
@@ -371,7 +372,7 @@ class VinePlayer
 		set: (val) -> 
 			volume = Math.min(1, Math.max(0, val))
 			@elems.volume.slider { value: volume }
-			vine?.grooveshark.setVolume(volume)
+			vine?.grooveshark?.setVolume(volume)
 
 	@property 'playing',
 		get: -> playing
@@ -425,17 +426,17 @@ class VinePlayer
 			@_stopUpdate()
 			@_startUpdate()
 			@playing = true
-			vine?.grooveshark.play()
+			vine?.grooveshark?.play()
 
 	pause: =>
 		if @playing
 			@_stopUpdate()
 			@playing = false
-			vine?.grooveshark.pause()
+			vine?.grooveshark?.pause()
 
 	seek: (time) =>
 		@updatePosition(time)
-		vine?.grooveshark.seek(time)
+		vine?.grooveshark?.seek(time)
 
 	# updates the player controls
 	updateSongInfo: () =>
@@ -493,6 +494,7 @@ class VinePlayer
 		update(songnode)
 
 	enqueueAutomaticSong: (callback) =>
+		vine.timesAutomaticallyChosen += 1
 		if not autoQueuedSong?
 			await @updateAutomaticSong (defer err)
 
@@ -545,7 +547,7 @@ class VinePlayer
 			@updateSongInfo()
 			@updatePosition(0)
 			@play()
-			vine?.grooveshark.enqueue(@currentSong)
+			vine?.grooveshark?.enqueue(@currentSong)
 			await @_expand(@currentSong, (defer err))
 			@updateAutomaticSong()
 		else
@@ -563,7 +565,7 @@ class VinePlayer
 			lastPlayed = currentSong
 			queue.unshift(currentSong)
 			currentSong = playedSongs.pop()
-			vine?.grooveshark.enqueue(@currentSong)
+			vine?.grooveshark?.enqueue(@currentSong)
 			update(lastPlayed)
 			update(@currentSong)
 			@updateSongInfo()

@@ -109,6 +109,7 @@
     maxSearchResults: 20,
     currentQuery: null,
     player: null,
+    timesAutomaticallyChosen: 0,
     pushState: function(state, path) {
       vine.currentState += 1;
       state = state != null ? state : {};
@@ -146,7 +147,7 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 105
+          lineno: 107
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -165,7 +166,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 109
+              lineno: 111
             })));
             if (!err) results.push(data);
           }
@@ -224,7 +225,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 141
+              lineno: 143
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -241,7 +242,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 144
+              lineno: 146
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -485,11 +486,10 @@
     }
 
     VinePlayer.prototype.init = function(firstSong) {
-      var err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var err, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      console.log('ROOT', vine.rootnode);
       vine.rootnode.expanded = true;
       queue = [];
       playedSongs = [];
@@ -499,7 +499,7 @@
       this.updatePosition(0);
       this.play();
       if (typeof vine !== "undefined" && vine !== null) {
-        vine.grooveshark.enqueue(currentSong);
+        if ((_ref = vine.grooveshark) != null) _ref.enqueue(currentSong);
       }
       (function(__iced_k) {
         __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -512,7 +512,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 342
+          lineno: 343
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -553,11 +553,12 @@
         return volume;
       },
       set: function(val) {
+        var _ref;
         volume = Math.min(1, Math.max(0, val));
         this.elems.volume.slider({
           value: volume
         });
-        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.setVolume(volume) : void 0;
+        return typeof vine !== "undefined" && vine !== null ? (_ref = vine.grooveshark) != null ? _ref.setVolume(volume) : void 0 : void 0;
       }
     });
 
@@ -638,7 +639,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 413
+          lineno: 414
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -654,25 +655,28 @@
     };
 
     VinePlayer.prototype.play = function() {
+      var _ref;
       if (!this.playing) {
         this._stopUpdate();
         this._startUpdate();
         this.playing = true;
-        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.play() : void 0;
+        return typeof vine !== "undefined" && vine !== null ? (_ref = vine.grooveshark) != null ? _ref.play() : void 0 : void 0;
       }
     };
 
     VinePlayer.prototype.pause = function() {
+      var _ref;
       if (this.playing) {
         this._stopUpdate();
         this.playing = false;
-        return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.pause() : void 0;
+        return typeof vine !== "undefined" && vine !== null ? (_ref = vine.grooveshark) != null ? _ref.pause() : void 0 : void 0;
       }
     };
 
     VinePlayer.prototype.seek = function(time) {
+      var _ref;
       this.updatePosition(time);
-      return typeof vine !== "undefined" && vine !== null ? vine.grooveshark.seek(time) : void 0;
+      return typeof vine !== "undefined" && vine !== null ? (_ref = vine.grooveshark) != null ? _ref.seek(time) : void 0 : void 0;
     };
 
     VinePlayer.prototype.updateSongInfo = function() {
@@ -731,7 +735,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 485
+          lineno: 486
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -749,6 +753,7 @@
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+      vine.timesAutomaticallyChosen += 1;
       (function(__iced_k) {
         if (!(autoQueuedSong != null)) {
           (function(__iced_k) {
@@ -762,7 +767,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 498
+              lineno: 500
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -801,7 +806,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 511
+          lineno: 513
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -829,7 +834,7 @@
     };
 
     VinePlayer.prototype.playNext = function() {
-      var err, lastPlayed, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var err, lastPlayed, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -844,7 +849,7 @@
         this.updatePosition(0);
         this.play();
         if (typeof vine !== "undefined" && vine !== null) {
-          vine.grooveshark.enqueue(this.currentSong);
+          if ((_ref = vine.grooveshark) != null) _ref.enqueue(this.currentSong);
         }
         (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -857,7 +862,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 548
+            lineno: 550
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -876,7 +881,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 553
+            lineno: 555
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -886,13 +891,13 @@
     };
 
     VinePlayer.prototype.playPrevious = function() {
-      var lastPlayed;
+      var lastPlayed, _ref;
       if (playedSongs.length > 0 && position < this.goBackThreshold) {
         lastPlayed = currentSong;
         queue.unshift(currentSong);
         currentSong = playedSongs.pop();
         if (typeof vine !== "undefined" && vine !== null) {
-          vine.grooveshark.enqueue(this.currentSong);
+          if ((_ref = vine.grooveshark) != null) _ref.enqueue(this.currentSong);
         }
         update(lastPlayed);
         update(this.currentSong);
