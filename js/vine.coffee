@@ -281,6 +281,11 @@ class VinePlayer
 
 		@goBackThreshold = 3
 
+		@elems.favorite.click (e) =>
+			@currentSong.favorited = not @currentSong.favorited
+			@updateSongInfo()
+			update(@currentSong)
+
 		@elems.playpause.click (e) =>
 			if @playing
 				@pause()
@@ -324,6 +329,8 @@ class VinePlayer
 
 	# resets the player starting with a given song
 	init: (firstSong) =>
+		console.log('ROOT', vine.rootnode)
+		vine.rootnode.expanded = true
 		queue = []
 		playedSongs = []
 		currentSong = firstSong
@@ -433,7 +440,12 @@ class VinePlayer
 	# updates the player controls
 	updateSongInfo: () =>
 
-		song = currentSong?.song
+		if @currentSong.favorited
+			@elems.favorite.addClass('favorited')
+		else
+			@elems.favorite.removeClass('favorited')
+
+		song = @currentSong?.song
 		if song?.url?
 			@elems.song.empty().append $('<a target=_blank>').attr('href', song.url)
 				.text(song?.name ? 'No Title')

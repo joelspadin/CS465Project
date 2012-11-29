@@ -83,6 +83,9 @@
 #view-player #player-controls #btn-favorite {
   background-image: url('../img/heart.svg');
 }
+#view-player #player-controls #btn-favorite.favorited {
+  background-position: -107px 0;
+}
 #view-player #player-controls #btn-prev {
   background-image: url('../img/prev.svg');
 }

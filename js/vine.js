@@ -437,6 +437,11 @@
         volume: $('#ctrl-volume')
       };
       this.goBackThreshold = 3;
+      this.elems.favorite.click(function(e) {
+        _this.currentSong.favorited = !_this.currentSong.favorited;
+        _this.updateSongInfo();
+        return update(_this.currentSong);
+      });
       this.elems.playpause.click(function(e) {
         if (_this.playing) {
           return _this.pause();
@@ -484,6 +489,8 @@
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+      console.log('ROOT', vine.rootnode);
+      vine.rootnode.expanded = true;
       queue = [];
       playedSongs = [];
       currentSong = firstSong;
@@ -505,7 +512,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 335
+          lineno: 342
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -631,7 +638,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 406
+          lineno: 413
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -669,17 +676,22 @@
     };
 
     VinePlayer.prototype.updateSongInfo = function() {
-      var song, _ref, _ref1, _ref2, _ref3;
-      song = currentSong != null ? currentSong.song : void 0;
-      if ((song != null ? song.url : void 0) != null) {
-        this.elems.song.empty().append($('<a target=_blank>').attr('href', song.url).text((_ref = song != null ? song.name : void 0) != null ? _ref : 'No Title'));
+      var song, _ref, _ref1, _ref2, _ref3, _ref4;
+      if (this.currentSong.favorited) {
+        this.elems.favorite.addClass('favorited');
       } else {
-        this.elems.song.empty().text((_ref1 = song != null ? song.name : void 0) != null ? _ref1 : 'No Title');
+        this.elems.favorite.removeClass('favorited');
+      }
+      song = (_ref = this.currentSong) != null ? _ref.song : void 0;
+      if ((song != null ? song.url : void 0) != null) {
+        this.elems.song.empty().append($('<a target=_blank>').attr('href', song.url).text((_ref1 = song != null ? song.name : void 0) != null ? _ref1 : 'No Title'));
+      } else {
+        this.elems.song.empty().text((_ref2 = song != null ? song.name : void 0) != null ? _ref2 : 'No Title');
       }
       if ((song != null ? song.artistUrl : void 0) != null) {
-        this.elems.artist.empty().append($('<a target=_blank>').attr('href', song.artistUrl).text((_ref2 = song != null ? song.artist : void 0) != null ? _ref2 : 'No Artist'));
+        this.elems.artist.empty().append($('<a target=_blank>').attr('href', song.artistUrl).text((_ref3 = song != null ? song.artist : void 0) != null ? _ref3 : 'No Artist'));
       } else {
-        this.elems.artist.empty().text((_ref3 = song != null ? song.artist : void 0) != null ? _ref3 : 'No Artist');
+        this.elems.artist.empty().text((_ref4 = song != null ? song.artist : void 0) != null ? _ref4 : 'No Artist');
       }
       if ((song != null ? song.albumArt : void 0) != null) {
         this.elems.art.attr('src', song != null ? song.albumArt : void 0);
@@ -719,7 +731,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 473
+          lineno: 485
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -750,7 +762,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 486
+              lineno: 498
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -789,7 +801,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 499
+          lineno: 511
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -845,7 +857,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 536
+            lineno: 548
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -864,7 +876,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 541
+            lineno: 553
           })));
           __iced_deferrals._fulfill();
         })(function() {
