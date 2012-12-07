@@ -21,17 +21,19 @@ $(function() {
 	var tree = d3.layout.tree().size([height, width]);
 	var heightMod = 1;
 
-	var panBase = [((width - nodeWidth - dist) / 2), 0];
+	var panBase = [((width - nodeWidth - dist) / 2), -60];
 	var currentPan = [0, 0];
 
 	var diagonal = d3.svg.diagonal()
 		.projection(function(d) { return [d.y, d.x]; });
 
+	var zoom = d3.behavior.zoom().on('zoom', pan)
+
 	var vis = d3.select("#vine").append("svg:svg")
 		.attr("id", "test")
 		.attr("height", "100%")
 		.attr("width", "100%")
-		.call(d3.behavior.zoom().on("zoom", pan))
+		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("mousewheel.zoom", changeLevel)
 		.append("svg:g")
@@ -236,6 +238,58 @@ $(function() {
 				return d.favorited ? 1 : 0;
 			});
 
+		nodeUpdate.select("rect")
+			.style("stroke", function(d) {
+				if (vine.player.isPlaying(d)) {
+					return "green";
+				}
+				else if (vine.player.isQueued(d)) {
+					return "purple";
+				}
+				else if (vine.player.isAutoQueued(d)) {
+					return "#D9ABD9";
+				}
+				else if (vine.player.wasPlayed(d)) {
+					return "blue";
+				}
+				else {
+					return "black";
+				}
+			})
+			.style("fill", function(d) {
+				if (vine.player.isPlaying(d)) {
+					return "#B7F7B7";
+				}
+				else if (vine.player.isQueued(d)) {
+					return "#D9ABD9";
+				}
+				else if (vine.player.isAutoQueued(d)) {
+					return "#f9cdf9";
+				}
+				else if (vine.player.wasPlayed(d)) {
+					return "#A8A8FF";
+				}
+				else {
+					return "white";
+				}
+			});
+
+		nodeUpdate.filter(function(d) { return d.expanded == 1; }).selectAll("g.nodeControls").selectAll("rect")
+			.style("fill", function(d) {
+				if (vine.player.isPlaying(d)) {
+					return "green";
+				}
+				else if (vine.player.isQueued(d)) {
+					return "purple";
+				}
+				else if (vine.player.wasPlayed(d)) {
+					return "blue";
+				}
+				else {
+					return "#CCCCCC";
+				}
+			});
+
 		if (z == 0) {
 
 			nodeUpdate.select("g.node")
@@ -244,40 +298,40 @@ $(function() {
 			nodeUpdate.select("rect")
 				.attr("height", function(d) { return d.expanded == 1 ? nodeHeightExp : nodeHeight; })
 				.attr("width", nodeWidth)
-				.style("stroke", function(d) {
-					if (vine.player.isPlaying(d)) {
-						return "green";
-					}
-					else if (vine.player.isQueued(d)) {
-						return "purple";
-					}
-					else if (vine.player.isAutoQueued(d)) {
-						return "#D9ABD9";
-					}
-					else if (vine.player.wasPlayed(d)) {
-						return "blue";
-					}
-					else {
-						return "black";
-					}
-				})
-				.style("fill", function(d) {
-					if (vine.player.isPlaying(d)) {
-						return "#B7F7B7";
-					}
-					else if (vine.player.isQueued(d)) {
-						return "#D9ABD9";
-					}
-					else if (vine.player.isAutoQueued(d)) {
-						return "#f9cdf9";
-					}
-					else if (vine.player.wasPlayed(d)) {
-						return "#A8A8FF";
-					}
-					else {
-						return "white";
-					}
-				})
+				//.style("stroke", function(d) {
+				//	if (vine.player.isPlaying(d)) {
+				//		return "green";
+				//	}
+				//	else if (vine.player.isQueued(d)) {
+				//		return "purple";
+				//	}
+				//	else if (vine.player.isAutoQueued(d)) {
+				//		return "#D9ABD9";
+				//	}
+				//	else if (vine.player.wasPlayed(d)) {
+				//		return "blue";
+				//	}
+				//	else {
+				//		return "black";
+				//	}
+				//})
+				//.style("fill", function(d) {
+				//	if (vine.player.isPlaying(d)) {
+				//		return "#B7F7B7";
+				//	}
+				//	else if (vine.player.isQueued(d)) {
+				//		return "#D9ABD9";
+				//	}
+				//	else if (vine.player.isAutoQueued(d)) {
+				//		return "#f9cdf9";
+				//	}
+				//	else if (vine.player.wasPlayed(d)) {
+				//		return "#A8A8FF";
+				//	}
+				//	else {
+				//		return "white";
+				//	}
+				//})
 				.style("opacity", 1.0);
 
 			nodeUpdate.select("rect.nodeBG")
@@ -300,20 +354,20 @@ $(function() {
 
 			nodeUpdate.filter(function(d) { return d.expanded == 1; }).selectAll("g.nodeControls").selectAll("rect")
 				.attr("height", "24px")
-				.style("fill", function(d) {
-					if (vine.player.isPlaying(d)) {
-						return "green";
-					}
-					else if (vine.player.isQueued(d)) {
-						return "purple";
-					}
-					else if (vine.player.wasPlayed(d)) {
-						return "blue";
-					}
-					else {
-						return "#CCCCCC";
-					}
-				})
+				//.style("fill", function(d) {
+				//	if (vine.player.isPlaying(d)) {
+				//		return "green";
+				//	}
+				//	else if (vine.player.isQueued(d)) {
+				//		return "purple";
+				//	}
+				//	else if (vine.player.wasPlayed(d)) {
+				//		return "blue";
+				//	}
+				//	else {
+				//		return "#CCCCCC";
+				//	}
+				//})
 				.delay(duration)
 				.duration(0);
 
@@ -486,6 +540,16 @@ $(function() {
 			.duration(250)
 			.attr("transform", "translate(" + (currentPan[0] + panBase[0]) + ", " + (currentPan[1] + panBase[1]) + ")");
 		update(vine.rootnode);
+	}
+
+	window.resetView = function() {
+		heightMod = 1;
+		//tree = d3.layout.tree().size([height, width]);
+		currentPan = [0, 0];
+		panBase[1] = -60;
+		zoom.translate(currentPan);
+		
+		scale(0);
 	}
 
 	function changeLevel(e) {

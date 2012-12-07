@@ -127,8 +127,9 @@ root.vine =
 	selectSong: (song, restoring) ->
 		console.log 'selected song', song, song instanceof SongNode, song instanceof SongData
 		view.change 'player'
-
+		
 		vine.rootnode = new SongNode(song)
+		resetView()
 
 		if not restoring
 			console.log 'pushing state'

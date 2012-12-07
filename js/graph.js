@@ -80,14 +80,14 @@
     SongData.property('name', {
       get: function() {
         var _ref;
-        return (_ref = this.lastfm.name) != null ? _ref : this.gs.name;
+        return (_ref = this.gs.name) != null ? _ref : this.lastfm.name;
       }
     });
 
     SongData.property('artist', {
       get: function() {
         var _ref;
-        return (_ref = this.lastfm.artist) != null ? _ref : this.gs.artist;
+        return (_ref = this.gs.artist) != null ? _ref : this.lastfm.artist;
       }
     });
 
@@ -101,7 +101,7 @@
     SongData.property('album', {
       get: function() {
         var _ref;
-        return (_ref = this.lastfm.album) != null ? _ref : this.gs.album;
+        return (_ref = this.gs.album) != null ? _ref : this.lastfm.album;
       }
     });
 

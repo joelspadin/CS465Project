@@ -20,16 +20,16 @@ class root.SongData
 		get: -> this.lastfm.mbid
 
 	@property 'name',
-		get: -> this.lastfm.name ? this.gs.name
+		get: -> this.gs.name ? this.lastfm.name
 
 	@property 'artist',
-		get: -> this.lastfm.artist ? this.gs.artist
+		get: -> this.gs.artist ? this.lastfm.artist
 
 	@property 'artistUrl',
 		get: -> this.lastfm.artistUrl ? null
 
 	@property 'album',
-		get: -> this.lastfm.album ? this.gs.album
+		get: -> this.gs.album ? this.lastfm.album
 
 	@property 'albumUrl',
 		get: -> this.lastfm.albumUrl ? null

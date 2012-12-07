@@ -194,6 +194,7 @@
       console.log('selected song', song, song instanceof SongNode, song instanceof SongData);
       view.change('player');
       vine.rootnode = new SongNode(song);
+      resetView();
       if (!restoring) {
         console.log('pushing state');
         vine.pushState({
@@ -225,7 +226,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 143
+              lineno: 144
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -242,7 +243,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 146
+              lineno: 147
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -512,7 +513,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 343
+          lineno: 344
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -639,7 +640,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 414
+          lineno: 415
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -735,7 +736,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 486
+          lineno: 487
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -767,7 +768,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 500
+              lineno: 501
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -806,7 +807,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 513
+          lineno: 514
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -862,7 +863,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 550
+            lineno: 551
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -881,7 +882,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 555
+            lineno: 556
           })));
           __iced_deferrals._fulfill();
         })(function() {

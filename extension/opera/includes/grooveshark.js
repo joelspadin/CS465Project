@@ -1,5 +1,6 @@
 ﻿// ==UserScript==
 // @include http://grooveshark.com/*
+// @include http://*.grooveshark.com/*
 // ==/UserScript==
 var oex = opera.extension;
 
