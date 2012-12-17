@@ -40,6 +40,36 @@ $(function() {
 			.attr("transform", "translate(" + panBase + ")")
 			.attr("id", "tree");
 
+	var tutorial = vis.append('svg:g')
+		.attr('transform', 'translate(0, 100)')
+		.attr('id', 'tutorial');
+	
+	([
+		['blue', '#A8A8FF', 'Songs you\'ve already played'],
+		['green', '#B7F7B7', 'The currently playing song'],
+		['purple', '#D9ABD9', 'Songs queued to play next'],
+	]).forEach(function(def, i) {
+		var stroke = def[0];
+		var fill = def[1];
+		var text = def[2];
+
+		tutorial.append('svg:rect')
+			.attr('y', i * 20)
+			.attr('width', '24px')
+			.attr('height', '18px')
+			.attr('rx', '2px')
+			.attr('ry', '2px')
+			.attr('stroke', stroke)
+			.attr('fill', fill);
+
+		tutorial.append('svg:text')
+			.attr('x', '30px')
+			.attr('y', i * 20 + 15)
+			.text(text);
+	});
+
+
+
 	function updateNode(err, node) {
 		update(node);
 	}
@@ -113,8 +143,6 @@ $(function() {
 			.attr('clip-path', getNodeClip)
 			.text(function(d) {
 				return d.song.name || 'No Title';
-				//var a = d.song.name;
-				//return a.length > 12 ? a.slice(0, 12) + "..." : a;
 			});
 
 		nodeEnter.append("svg:text")
@@ -125,8 +153,6 @@ $(function() {
 			.attr('clip-path', getNodeClip)
 			.text(function(d) {
 				return d.song.artist || 'No Artist';
-				//var a = d.song.artist;
-				//return a.length > 12 ? a.slice(0, 12) + "..." : a;
 			});
 
 		nodeEnter.append("svg:text")
@@ -137,8 +163,6 @@ $(function() {
 			.attr("class", "ellipsis zoomName")
 			.text(function(d) {
 				return d.song.name || 'No Title';
-				//var a = d.song.name;
-				//return a.length > 12 ? a.slice(0, 12) + "..." : a;
 			})
 			.style("opacity", 0.0);
 
@@ -298,40 +322,6 @@ $(function() {
 			nodeUpdate.select("rect")
 				.attr("height", function(d) { return d.expanded == 1 ? nodeHeightExp : nodeHeight; })
 				.attr("width", nodeWidth)
-				//.style("stroke", function(d) {
-				//	if (vine.player.isPlaying(d)) {
-				//		return "green";
-				//	}
-				//	else if (vine.player.isQueued(d)) {
-				//		return "purple";
-				//	}
-				//	else if (vine.player.isAutoQueued(d)) {
-				//		return "#D9ABD9";
-				//	}
-				//	else if (vine.player.wasPlayed(d)) {
-				//		return "blue";
-				//	}
-				//	else {
-				//		return "black";
-				//	}
-				//})
-				//.style("fill", function(d) {
-				//	if (vine.player.isPlaying(d)) {
-				//		return "#B7F7B7";
-				//	}
-				//	else if (vine.player.isQueued(d)) {
-				//		return "#D9ABD9";
-				//	}
-				//	else if (vine.player.isAutoQueued(d)) {
-				//		return "#f9cdf9";
-				//	}
-				//	else if (vine.player.wasPlayed(d)) {
-				//		return "#A8A8FF";
-				//	}
-				//	else {
-				//		return "white";
-				//	}
-				//})
 				.style("opacity", 1.0);
 
 			nodeUpdate.select("rect.nodeBG")
@@ -354,20 +344,6 @@ $(function() {
 
 			nodeUpdate.filter(function(d) { return d.expanded == 1; }).selectAll("g.nodeControls").selectAll("rect")
 				.attr("height", "24px")
-				//.style("fill", function(d) {
-				//	if (vine.player.isPlaying(d)) {
-				//		return "green";
-				//	}
-				//	else if (vine.player.isQueued(d)) {
-				//		return "purple";
-				//	}
-				//	else if (vine.player.wasPlayed(d)) {
-				//		return "blue";
-				//	}
-				//	else {
-				//		return "#CCCCCC";
-				//	}
-				//})
 				.delay(duration)
 				.duration(0);
 
