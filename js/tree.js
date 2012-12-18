@@ -17,6 +17,8 @@ $(function() {
 
 	var nodeHeightZoom = 54;
 	var nodeWidthZoom = 54;
+	
+	var maxX = 0;
 
 	var tree = d3.layout.tree().size([height, width]);
 	var heightMod = 1;
@@ -27,7 +29,7 @@ $(function() {
 	var diagonal = d3.svg.diagonal()
 		.projection(function(d) { return [d.y, d.x]; });
 
-	var zoom = d3.behavior.zoom().on('zoom', pan)
+	var zoom = d3.behavior.zoom().on('zoom', pan);
 
 	var vis = d3.select("#vine").append("svg:svg")
 		.attr("id", "test")
@@ -98,9 +100,11 @@ $(function() {
 
 		var duration = d3.event && d3.event.altKey ? 1000 : 250;
 
-		//		checkOverlap(vine.rootnode);
+
 
 		var nodes = tree.nodes(vine.rootnode).reverse();
+
+		var currentMaxX = 0;
 
 		nodes.forEach(function(d) {
 			if (z == 0) {
@@ -113,8 +117,17 @@ $(function() {
 
 			d.lStartYm = d.y + nodeWidth;
 			d.lStartYz = d.y + nodeWidthZoom;
+			
+			currentMaxX = Math.max(currentMaxX, d.y);
 
 		});
+		
+		if (z == 0) {
+			maxX = Math.max(maxX, currentMaxX);
+		}
+		else {
+			maxX = Math.min(maxX, currentMaxX - 150);
+		}
 
 		var node = vis.selectAll("g.node")
 			.data(nodes, function(d) { return d.id || (d.id = ++i); });
@@ -124,7 +137,7 @@ $(function() {
 			.attr('id', function(d) { return 'clip-' + d.id; })
 			.append('svg:rect')
 				.attr('width', nodeWidth)
-				.attr('height', nodeHeight - 2)
+				.attr('height', nodeHeight - 2);
 
 		var nodeEnter = node.enter().append("svg:g")
 			.attr("class", "node")
@@ -578,9 +591,14 @@ $(function() {
 	};
 
 	function pan() {
-		currentPan = d3.event.translate;
-		vis.attr("transform", "translate(" + (d3.event.translate[0] + panBase[0]) + ", " + (d3.event.translate[1] + panBase[1]) + ")");
-		//		console.log(d3.event.translate);
+		if (d3.event.translate[0] > 300 || d3.event.translate[0] < -maxX) {
+			currentPan[1] = d3.event.translate[1];
+			zoom.translate(currentPan);
+		} else {
+			currentPan = d3.event.translate;
+		}
+		vis.attr("transform", "translate(" + (currentPan[0] + panBase[0]) + ", " + (currentPan[1] + panBase[1]) + ")");
+//		console.log(d3.event.translate);
 		update(vine.rootnode);
 	}
 
@@ -613,7 +631,6 @@ $(function() {
 			.duration(250)
 			.attr("transform", "translate(" + (currentPan[0] + panBase[0]) + ", " + (currentPan[1] + panBase[1]) + ")");
 
-		updateLegend();
 		update(vine.rootnode);
 	}
 
@@ -634,9 +651,29 @@ $(function() {
 	}
 
 	function changeLevel(e) {
-		z = d3.event.wheelDelta < 0 ? 1 : 0;
-		updateLegend();
-		update(vine.rootnode);
+		var oldZ = z;
+		if (d3.event.wheelDelta < 0) {
+			z = 1;
+			if (oldZ == 0 && currentPan[0] <= 0) {
+				currentPan[0] *= .17276;
+			}
+		}
+		else {
+			z = 0;
+			if (oldZ == 1 && currentPan[0] <= 0) {
+				currentPan[0] /= .17276;
+			}
+		}
+		
+		if (z !== oldZ) {
+			d3.event.translate = currentPan;
+			vis.transition()
+				.attr("transform", "translate(" + (currentPan[0] + panBase[0]) + ", " + (currentPan[1] + panBase[1]) + ")")
+				.duration(250);
+			
+			updateLegend();
+			update(vine.rootnode);
+		}
 	}
 
 
