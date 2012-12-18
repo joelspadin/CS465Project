@@ -10,7 +10,7 @@ features =
 
 		optional:
 			mediaqueries: 'CSS media queries'
-			cssanimations: 'CSS animations'
+			#cssanimations: 'CSS animations'
 			csstransitions: 'CSS transitions'
 			boxsizing: 'CSS box-sizing property'
 	

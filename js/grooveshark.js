@@ -16,7 +16,7 @@
   root.GrooveShark = (function() {
     var key;
 
-    GrooveShark.endpoint = '/cs465/api/query-song.php';
+    GrooveShark.endpoint = '/api/query-song.php';
 
     key = null;
 

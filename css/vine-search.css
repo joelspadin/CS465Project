@@ -54,11 +54,19 @@
 }
 #view-search #search-results tbody tr:hover {
   color: #000000;
-  background-color: #c0dcf1;
+  background-color: #8cbee5;
 }
 #view-search #search-results tbody tr:active {
   color: #ffffff;
   background-color: #3372f1;
+}
+#view-search #search-controls {
+  clear: both;
+  overflow: auto;
+  margin-top: 1em;
+}
+#view-search #search-controls #search-cancel {
+  float: right;
 }
 @media (max-width: 640px) {
   #view-search {

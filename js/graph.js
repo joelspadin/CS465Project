@@ -381,11 +381,12 @@
     };
 
     SongData.prototype.getSimilar = function(limit, callback) {
-      var err, f, i, items, newdata, similar, track, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var err, f, i, items, newdata, similar, songs, track, variance, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      f = new SimilarTrackFinder(limit);
+      variance = 2.5;
+      f = new SimilarTrackFinder(Math.floor(limit * variance));
       (function(__iced_k) {
         __iced_deferrals = new iced.Deferrals(__iced_k, {
           parent: ___iced_passed_deferral,
@@ -398,19 +399,24 @@
               return similar = arguments[1];
             };
           })(),
-          lineno: 188
+          lineno: 189
         })));
         __iced_deferrals._fulfill();
       })(function() {
         if (err) {
-          console.log(err);
-          return [];
+          console.log('Error:', err);
+          callback(err, []);
+          return;
         }
         items = [];
-        console.log('SIMILAR', similar);
+        songs = Array.prototype.slice.call(similar.track);
+        while (songs.length > limit) {
+          i = Math.floor(Math.random() * songs.length);
+          songs.splice(i, 1);
+        }
         (function(__iced_k) {
           var _i, _len, _ref, _results, _while;
-          _ref = similar.track;
+          _ref = songs;
           _len = _ref.length;
           i = 0;
           _results = [];
@@ -444,7 +450,7 @@
                       return __slot_1[__slot_2] = arguments[1];
                     };
                   })(items, i),
-                  lineno: 198
+                  lineno: 206
                 })));
                 __iced_deferrals._fulfill();
               })(_next);
@@ -452,6 +458,9 @@
           };
           _while(__iced_k);
         })(function() {
+          items = items.filter(function(item) {
+            return !!item.gs.id;
+          });
           return callback(null, items);
         });
       });
@@ -471,6 +480,8 @@
       this.parent = parent != null ? parent : null;
       this.children = [];
       this._expanded = false;
+      this._expanding = false;
+      this._expandingCallbacks = [];
       this.favorited = false;
     }
 
@@ -481,6 +492,11 @@
       ___iced_passed_deferral = iced.findDeferral(arguments);
       (function(__iced_k) {
         if (!_this._expanded) {
+          if (_this._expanding) {
+            _this._expandingCallbacks.push(callback);
+            return;
+          }
+          _this._expanding = true;
           items = [];
           (function(__iced_k) {
             __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -494,7 +510,7 @@
                   return items = arguments[1];
                 };
               })(),
-              lineno: 217
+              lineno: 237
             })));
             __iced_deferrals._fulfill();
           })(function() {
@@ -519,7 +535,12 @@
         }
       })(function() {
         _this._expanded = true;
-        return typeof callback === "function" ? callback(null, _this) : void 0;
+        _this._expanding = false;
+        if (typeof callback === "function") callback(null, _this);
+        _this._expandingCallbacks.forEach(function(item) {
+          return typeof item === "function" ? item(null, _this) : void 0;
+        });
+        return _this._expandingCallbacks = [];
       });
     };
 
@@ -569,7 +590,6 @@
     };
 
     SimilarTrackFinder.prototype.parseResult = function(data) {
-      console.log('PARSING', data);
       if (!('@attr' in data.similartracks)) return [404, 'Song not Found'];
       return [null, data.similartracks];
     };

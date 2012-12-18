@@ -4834,9 +4834,12 @@
         if (moved && d3.event.target === eventTarget) w.on("click.zoom", click, true);
       }
       function click() {
-        d3_eventCancel();
+        //d3_eventCancel();
         w.on("click.zoom", null);
       }
+	  if (d3.event.button !== 0) {
+        return;
+	  }
       var target = this, event_ = event.of(target, arguments), eventTarget = d3.event.target, moved = 0, w = d3.select(window).on("mousemove.zoom", mousemove).on("mouseup.zoom", mouseup), l = location(d3.mouse(target));
       window.focus();
       d3_eventCancel();

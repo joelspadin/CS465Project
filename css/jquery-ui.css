@@ -97,6 +97,9 @@
 .ui-slider .ui-slider-range {
   background: #3372f1;
 }
+.ui-slider.ui-state-disabled .ui-slider-handle {
+  display: none;
+}
 .ui-slider-horizontal {
   height: 9px;
   top: 1px;

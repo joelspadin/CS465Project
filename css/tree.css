@@ -4,7 +4,7 @@
 
 .nodeControls {
 	font: 14px/16px "Helvetica", "Arial", "Helvetica Neue", sans-serif;
-	/* 	opacity: 0.0; */
+	cursor: default;
 }
 
 .link {
@@ -17,4 +17,12 @@ text.ellipsis {
 	-o-text-overflow: ellipsis;
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+text.header {
+	font: 28px/32px 'Times New Roman', serif;
+}
+
+svg {
+	cursor: move;
 }

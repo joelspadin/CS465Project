@@ -11,6 +11,7 @@ $ ->
 		$('<div>'), $('<div>'), $('<div>'), $('<div>')
 
 	$('#player-controls, #player-controls *:not(#player-info)').attr('unselectable', 'on')
+	$('#search-cancel').click(vine.cancelSearch)
 
 	vine.player = new VinePlayer
 
@@ -34,10 +35,15 @@ $ ->
 		document.title = 'Audio Vine'
 
 		if state.data.id? and state.data.id != vine.currentState and state.data.view?
-			console.log 'STATE', state.data.id, vine.currentState, state.data.id != vine.currentState, state
+			#console.log 'STATE', state.data.id, vine.currentState, state.data.id != vine.currentState, state
 			vine.currentState = state.data.id
 			
-			if state.data.view == 'search' and state.data.query? and state.data.query != vine.currentQuery
+			if vine.noReload
+				#console.log 'no reload'
+				view.change(state.data.view)
+				vine.noReload = false
+
+			else if state.data.view == 'search' and state.data.query? and state.data.query != vine.currentQuery
 				console.log 'restoring search'
 				vine.search(state.data.query, true)
 
@@ -65,8 +71,10 @@ root.lastfm = new LastFM
 
 # The main application object
 root.vine =
-	siteroot: '/cs465'
+	siteroot: '/'
 	currentState: 0
+	# if true, next state change won't reload the player
+	noReload: false
 
 	rootnode: null
 
@@ -77,6 +85,7 @@ root.vine =
 	player: null
 
 	timesAutomaticallyChosen: 0
+	_loadingBar: null
 
 	# updates the URL history
 	pushState: (state, path) ->
@@ -89,6 +98,13 @@ root.vine =
 
 		console.log 'pushing state', vine.currentState
 		History.pushState state, '', vine.siteroot + view.getPath(view.currentView) + vine.encodePath(escape(path))
+
+	cancelSearch: () ->
+		vine.noReload = true
+		History.back()
+
+	enableCancelSearch: () ->
+		$('#search-cancel').show()
 
 	# runs a search for the given query
 	search: (query, restoring) ->
@@ -105,6 +121,11 @@ root.vine =
 		results = []
 		await gs.search query, vine.maxSearchResults, (defer err, candidates)
 
+		if err
+			console.log err
+			vine.showNoResults()
+			return
+
 		await for result in candidates
 			#console.log 'Getting LastFM data for', result
 			data = SongData.fromGroovesharkData(result)
@@ -115,6 +136,7 @@ root.vine =
 		vine.hideResultsSpinner()
 
 		if err
+			console.log err
 			vine.showNoResults()
 		else if results.length == 0
 			vine.showNoResults()
@@ -125,7 +147,7 @@ root.vine =
 				
 	# picks a search result and starts playing it
 	selectSong: (song, restoring) ->
-		console.log 'selected song', song, song instanceof SongNode, song instanceof SongData
+		#console.log 'selected song', song, song instanceof SongNode, song instanceof SongData
 		view.change 'player'
 		
 		vine.rootnode = new SongNode(song)
@@ -137,6 +159,7 @@ root.vine =
 		vine.resetSearchResults()
 		vine.currentQuery = null
 		vine.player.init(vine.rootnode)
+		vine.enableCancelSearch()
 
 	reloadSong: (url, restoring) ->
 		decoded = vine.decodeSongURL(url)
@@ -205,10 +228,13 @@ root.vine =
 				vine.selectSong(song)
 
 	showResultsSpinner: ->
-		$('#getting-results').show()
+		if vine._loadingBar == null
+			vine._loadingBar = showLoadingBar($('#getting-results'))
 
 	hideResultsSpinner: ->
-		$('#getting-results').hide()
+		if vine._loadingBar != null
+			hideLoadingBar(vine._loadingBar)
+			vine._loadingBar = null
 		
 	showNoResults: ->
 		$('#no-results').show()
@@ -218,6 +244,7 @@ root.vine =
 		$('#no-results').hide()
 		$('#showing-results').show()
 
+	
 
 
 # Handles views and view changes
@@ -282,7 +309,7 @@ class VinePlayer
 			seek: $ '#ctrl-seek'
 			volume: $ '#ctrl-volume'
 
-		@goBackThreshold = 3
+		@goBackThreshold = 4
 
 		@elems.favorite.click (e) =>
 			@currentSong.favorited = not @currentSong.favorited
@@ -412,15 +439,20 @@ class VinePlayer
 		get: -> playedSongs
 
 	_expand: (node, callback) =>
-		await node.expand (defer err)
-		if err
-			# TODO: show an error
-			console.log('ERROR', err)
-			callback?(err, null)
-		else
+		node.expand (err) =>
+			if err
+				# TODO: show an error
+				console.log('ERROR', err)
+				update(node)
+				callback?(err, null)
+			else
+				update(node)
+				checkOverlap(vine.rootnode)
+				callback(null, node)
+
+		if node._expanding
 			update(node)
-			checkOverlap(vine.rootnode)
-			callback(null, node)
+		
 
 	play: =>
 		if not @playing
@@ -454,30 +486,42 @@ class VinePlayer
 		else
 			@elems.song.empty().text(song?.name ? 'No Title')
 
+		@elems.song.attr 'title', @elems.song.text()
+
 		if song?.artistUrl?
 			@elems.artist.empty().append $('<a target=_blank>').attr('href', song.artistUrl)
 				.text(song?.artist ? 'No Artist')
 		else
 			@elems.artist.empty().text(song?.artist ? 'No Artist')
 
+		@elems.artist.attr 'title', @elems.artist.text()
+
 		if song?.albumArt?
-			@elems.art.attr 'src', song?.albumArt 
+			@elems.art.attr 'src', song.albumArt 
 			@elems.art.addClass 'hasart'
 		else
-			@elems.art.attr 'src', '/cs465/img/no-album.svg'
+			@elems.art.attr 'src', '/img/no-album.svg'
 			@elems.art.removeClass 'hasart'
+
+		if song?.album?
+			@elems.art.attr 'title', song.album
+		else
+			@elems.art.removeAttr 'title'
 
 		if song?.albumUrl?
 			@elems.albumlink.attr 'href', song.albumUrl
 		else
 			@elems.albumlink.removeAttr 'href'
 
-		# TODO: update song duration
 
 	# begins playing the given song
 	playNow: (songnode) =>
 		queue.unshift(songnode)
 		@playNext()
+
+	clearQueue: =>
+		queue = []
+		autoQueuedSong = null
 
 	# adds the given song to the end of the queue.
 	# If the song is already queued, it will be moved to the end.
@@ -517,12 +561,24 @@ class VinePlayer
 		choices = parent.children
 		# dumb selection code. randomly pick a child and queue it
 		i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1)
-		autoQueuedSong = choices[i]
-		update(autoQueuedSong)
+
+		if choices.length > 0
+			autoQueuedSong = choices[i]
+			update(autoQueuedSong)
+			callback?(null)
+		else
+			autoQueuedSong = null
+			update(vine.rootnode)
+			callback?(new Error('No song to play next'))
+
+		
 
 	# gets whether a song is in the queue
 	isQueued: (songnode) =>
 		return queue.contains(songnode)
+
+	getQueuePosition: (songnode) =>
+		return queue.indexOf(songnode)
 
 	# gets whether a song is the automatically selected next song
 	isAutoQueued: (songnode) =>
@@ -576,7 +632,11 @@ class VinePlayer
 				@play()
 		else
 			# else restart the song
-			@seek(0)
+			@_stopUpdate()
+			vine?.grooveshark?.enqueue(@currentSong)
+			update(@currentSong)
+			@updateSongInfo()
+			@updatePosition(0)
 			if @playing
 				@play()
 

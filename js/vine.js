@@ -57,6 +57,7 @@
     });
     $('.loader').append($('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'), $('<div>'));
     $('#player-controls, #player-controls *:not(#player-info)').attr('unselectable', 'on');
+    $('#search-cancel').click(vine.cancelSearch);
     vine.player = new VinePlayer;
     _ref = relpath(vine.siteroot, location.pathname).partition('/'), viewname = _ref[0], _ref[1], query = _ref[2];
     query = vine.decodePath(query);
@@ -74,9 +75,11 @@
       state = History.getState();
       document.title = 'Audio Vine';
       if ((state.data.id != null) && state.data.id !== vine.currentState && (state.data.view != null)) {
-        console.log('STATE', state.data.id, vine.currentState, state.data.id !== vine.currentState, state);
         vine.currentState = state.data.id;
-        if (state.data.view === 'search' && (state.data.query != null) && state.data.query !== vine.currentQuery) {
+        if (vine.noReload) {
+          view.change(state.data.view);
+          return vine.noReload = false;
+        } else if (state.data.view === 'search' && (state.data.query != null) && state.data.query !== vine.currentQuery) {
           console.log('restoring search');
           return vine.search(state.data.query, true);
         } else if (state.data.view === 'player' && (state.data.rootnode != null) && state.data.rootnode.song.id !== vine.rootnode.song.id) {
@@ -103,13 +106,15 @@
   });
 
   root.vine = {
-    siteroot: '/cs465',
+    siteroot: '/',
     currentState: 0,
+    noReload: false,
     rootnode: null,
     maxSearchResults: 20,
     currentQuery: null,
     player: null,
     timesAutomaticallyChosen: 0,
+    _loadingBar: null,
     pushState: function(state, path) {
       vine.currentState += 1;
       state = state != null ? state : {};
@@ -118,6 +123,13 @@
       state.view = view.currentView;
       console.log('pushing state', vine.currentState);
       return History.pushState(state, '', vine.siteroot + view.getPath(view.currentView) + vine.encodePath(escape(path)));
+    },
+    cancelSearch: function() {
+      vine.noReload = true;
+      return History.back();
+    },
+    enableCancelSearch: function() {
+      return $('#search-cancel').show();
     },
     search: function(query, restoring) {
       var candidates, data, err, result, results, song, ___iced_passed_deferral, __iced_deferrals, __iced_k,
@@ -147,10 +159,15 @@
               return candidates = arguments[1];
             };
           })(),
-          lineno: 107
+          lineno: 123
         })));
         __iced_deferrals._fulfill();
       })(function() {
+        if (err) {
+          console.log(err);
+          vine.showNoResults();
+          return;
+        }
         (function(__iced_k) {
           var _i, _len;
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -166,7 +183,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 111
+              lineno: 132
             })));
             if (!err) results.push(data);
           }
@@ -175,6 +192,7 @@
           var _i, _len, _results;
           vine.hideResultsSpinner();
           if (err) {
+            console.log(err);
             return vine.showNoResults();
           } else if (results.length === 0) {
             return vine.showNoResults();
@@ -191,7 +209,6 @@
       });
     },
     selectSong: function(song, restoring) {
-      console.log('selected song', song, song instanceof SongNode, song instanceof SongData);
       view.change('player');
       vine.rootnode = new SongNode(song);
       resetView();
@@ -204,7 +221,8 @@
       }
       vine.resetSearchResults();
       vine.currentQuery = null;
-      return vine.player.init(vine.rootnode);
+      vine.player.init(vine.rootnode);
+      return vine.enableCancelSearch();
     },
     reloadSong: function(url, restoring) {
       var decoded, err, song, ___iced_passed_deferral, __iced_deferrals, __iced_k,
@@ -226,7 +244,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 144
+              lineno: 167
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -243,7 +261,7 @@
                   return song = arguments[1];
                 };
               })(),
-              lineno: 147
+              lineno: 170
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -310,10 +328,15 @@
       }));
     },
     showResultsSpinner: function() {
-      return $('#getting-results').show();
+      if (vine._loadingBar === null) {
+        return vine._loadingBar = showLoadingBar($('#getting-results'));
+      }
     },
     hideResultsSpinner: function() {
-      return $('#getting-results').hide();
+      if (vine._loadingBar !== null) {
+        hideLoadingBar(vine._loadingBar);
+        return vine._loadingBar = null;
+      }
     },
     showNoResults: function() {
       $('#no-results').show();
@@ -391,6 +414,8 @@
 
       this.isAutoQueued = __bind(this.isAutoQueued, this);
 
+      this.getQueuePosition = __bind(this.getQueuePosition, this);
+
       this.isQueued = __bind(this.isQueued, this);
 
       this.updateAutomaticSong = __bind(this.updateAutomaticSong, this);
@@ -400,6 +425,8 @@
       this.dequeue = __bind(this.dequeue, this);
 
       this.enqueue = __bind(this.enqueue, this);
+
+      this.clearQueue = __bind(this.clearQueue, this);
 
       this.playNow = __bind(this.playNow, this);
 
@@ -438,7 +465,7 @@
         seek: $('#ctrl-seek'),
         volume: $('#ctrl-volume')
       };
-      this.goBackThreshold = 3;
+      this.goBackThreshold = 4;
       this.elems.favorite.click(function(e) {
         _this.currentSong.favorited = !_this.currentSong.favorited;
         _this.updateSongInfo();
@@ -513,7 +540,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 344
+          lineno: 371
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -625,27 +652,11 @@
     });
 
     VinePlayer.prototype._expand = function(node, callback) {
-      var err, ___iced_passed_deferral, __iced_deferrals, __iced_k,
-        _this = this;
-      __iced_k = __iced_k_noop;
-      ___iced_passed_deferral = iced.findDeferral(arguments);
-      (function(__iced_k) {
-        __iced_deferrals = new iced.Deferrals(__iced_k, {
-          parent: ___iced_passed_deferral,
-          funcname: "VinePlayer._expand"
-        });
-        node.expand((__iced_deferrals.defer({
-          assign_fn: (function() {
-            return function() {
-              return err = arguments[0];
-            };
-          })(),
-          lineno: 415
-        })));
-        __iced_deferrals._fulfill();
-      })(function() {
+      var _this = this;
+      node.expand(function(err) {
         if (err) {
           console.log('ERROR', err);
+          update(node);
           return typeof callback === "function" ? callback(err, null) : void 0;
         } else {
           update(node);
@@ -653,6 +664,7 @@
           return callback(null, node);
         }
       });
+      if (node._expanding) return update(node);
     };
 
     VinePlayer.prototype.play = function() {
@@ -693,17 +705,24 @@
       } else {
         this.elems.song.empty().text((_ref2 = song != null ? song.name : void 0) != null ? _ref2 : 'No Title');
       }
+      this.elems.song.attr('title', this.elems.song.text());
       if ((song != null ? song.artistUrl : void 0) != null) {
         this.elems.artist.empty().append($('<a target=_blank>').attr('href', song.artistUrl).text((_ref3 = song != null ? song.artist : void 0) != null ? _ref3 : 'No Artist'));
       } else {
         this.elems.artist.empty().text((_ref4 = song != null ? song.artist : void 0) != null ? _ref4 : 'No Artist');
       }
+      this.elems.artist.attr('title', this.elems.artist.text());
       if ((song != null ? song.albumArt : void 0) != null) {
-        this.elems.art.attr('src', song != null ? song.albumArt : void 0);
+        this.elems.art.attr('src', song.albumArt);
         this.elems.art.addClass('hasart');
       } else {
-        this.elems.art.attr('src', '/cs465/img/no-album.svg');
+        this.elems.art.attr('src', '/img/no-album.svg');
         this.elems.art.removeClass('hasart');
+      }
+      if ((song != null ? song.album : void 0) != null) {
+        this.elems.art.attr('title', song.album);
+      } else {
+        this.elems.art.removeAttr('title');
       }
       if ((song != null ? song.albumUrl : void 0) != null) {
         return this.elems.albumlink.attr('href', song.albumUrl);
@@ -715,6 +734,11 @@
     VinePlayer.prototype.playNow = function(songnode) {
       queue.unshift(songnode);
       return this.playNext();
+    };
+
+    VinePlayer.prototype.clearQueue = function() {
+      queue = [];
+      return autoQueuedSong = null;
     };
 
     VinePlayer.prototype.enqueue = function(songnode) {
@@ -736,7 +760,7 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 487
+          lineno: 531
         })));
         __iced_deferrals._fulfill();
       })(function() {
@@ -768,7 +792,7 @@
                   return err = arguments[0];
                 };
               })(),
-              lineno: 501
+              lineno: 545
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -807,19 +831,30 @@
               return err = arguments[0];
             };
           })(),
-          lineno: 514
+          lineno: 558
         })));
         __iced_deferrals._fulfill();
       })(function() {
         choices = parent.children;
         i = Math.min(Math.floor(Math.random() * choices.length), choices.length - 1);
-        autoQueuedSong = choices[i];
-        return update(autoQueuedSong);
+        if (choices.length > 0) {
+          autoQueuedSong = choices[i];
+          update(autoQueuedSong);
+          return typeof callback === "function" ? callback(null) : void 0;
+        } else {
+          autoQueuedSong = null;
+          update(vine.rootnode);
+          return typeof callback === "function" ? callback(new Error('No song to play next')) : void 0;
+        }
       });
     };
 
     VinePlayer.prototype.isQueued = function(songnode) {
       return queue.contains(songnode);
+    };
+
+    VinePlayer.prototype.getQueuePosition = function(songnode) {
+      return queue.indexOf(songnode);
     };
 
     VinePlayer.prototype.isAutoQueued = function(songnode) {
@@ -863,7 +898,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 551
+            lineno: 607
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -882,7 +917,7 @@
                 return err = arguments[0];
               };
             })(),
-            lineno: 556
+            lineno: 612
           })));
           __iced_deferrals._fulfill();
         })(function() {
@@ -892,7 +927,7 @@
     };
 
     VinePlayer.prototype.playPrevious = function() {
-      var lastPlayed, _ref;
+      var lastPlayed, _ref, _ref1;
       if (playedSongs.length > 0 && position < this.goBackThreshold) {
         lastPlayed = currentSong;
         queue.unshift(currentSong);
@@ -906,7 +941,13 @@
         this.updatePosition(0);
         if (this.playing) return this.play();
       } else {
-        this.seek(0);
+        this._stopUpdate();
+        if (typeof vine !== "undefined" && vine !== null) {
+          if ((_ref1 = vine.grooveshark) != null) _ref1.enqueue(this.currentSong);
+        }
+        update(this.currentSong);
+        this.updateSongInfo();
+        this.updatePosition(0);
         if (this.playing) return this.play();
       }
     };

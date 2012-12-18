@@ -1,5 +1,5 @@
 ﻿// ==UserScript==
-// @include http://localhost/cs465/*
+// @include http://localhost/*
 // @include http://audio-vine.com/*
 // ==/UserScript==
 

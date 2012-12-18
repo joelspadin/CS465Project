@@ -9,7 +9,7 @@ queryify = (data) ->
 	return parts.join '&'
 
 class root.GrooveShark
-	@endpoint = '/cs465/api/query-song.php'
+	@endpoint = '/api/query-song.php'
 
 	key = null
 	

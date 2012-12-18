@@ -4,36 +4,44 @@
 	<meta charset="utf-8">
 	<title>Audio Vine</title>
 
-	<link rel="stylesheet" href="/cs465/css/vine.css">
-	<link rel="stylesheet" href="/cs465/css/vine-home.css">
-	<link rel="stylesheet" href="/cs465/css/vine-search.css">
-	<link rel="stylesheet" href="/cs465/css/vine-player.css">
-	<link rel="stylesheet" href="/cs465/css/jquery-ui.css">
-	<link rel="stylesheet" href="/cs465/css/tree.css">
+	<link rel="stylesheet" href="/css/vine.css">
+	<link rel="stylesheet" href="/css/vine-home.css">
+	<link rel="stylesheet" href="/css/vine-search.css">
+	<link rel="stylesheet" href="/css/vine-player.css">
+	<link rel="stylesheet" href="/css/jquery-ui.css">
+	<link rel="stylesheet" href="/css/tree.css">
 
-	<script src="/cs465/js/d3.v2.js"></script>
-	<script src="/cs465/js/jquery.js"></script>
-	<script src="/cs465/js/modernizr.js"></script>
-	<script src="/cs465/js/prefixfree.js"></script>
-	<script src="/cs465/js/jquery-ui.min.js"></script>
-	<script src="/cs465/js/jquery.history.js"></script>
-	<script src="/cs465/js/lastfm/lastfm.api.js"></script>
-	<script src="/cs465/js/lastfm/lastfm.api.md5.js"></script>
-	<script src="/cs465/js/lastfm/lastfm.api.cache.js"></script>
-	<script src="/cs465/js/jquery.ui.touch-punch.min.js"></script>
-	
-	<script src="/cs465/js/feature-check.js"></script>
-	<script src="/cs465/js/grooveshark.js"></script>
-	<script src="/cs465/js/graph.js"></script>
-	<script src="/cs465/js/vine.js"></script>
-	<script src="/cs465/js/tree.js"></script>
+	<script src="/js/d3.v2.js"></script>
+	<script src="/js/jquery.js"></script>
+	<script src="/js/modernizr.js"></script>
+	<script src="/js/prefixfree.js"></script>
+	<script src="/js/jquery-ui.min.js"></script>
+	<script src="/js/jquery.history.js"></script>
+	<script src="/js/lastfm/lastfm.api.js"></script>
+	<script src="/js/lastfm/lastfm.api.md5.js"></script>
+	<script src="/js/lastfm/lastfm.api.cache.js"></script>
+	<script src="/js/jquery.ui.touch-punch.min.js"></script>
+	<script src="/swfobject/swfobject.js"></script>
+
+	<script src="/js/feature-check.js"></script>
+	<script src="/js/grooveshark.js"></script>
+	<script src="/js/loader.js"></script>
+	<script src="/js/player.js"></script>
+	<script src="/js/graph.js"></script>
+	<script src="/js/vine.js"></script>
+	<script src="/js/tree.js"></script>
 </head>
 <body>
+	<div id="gs-player" style="display: none"></div>
 	<div class="view" id="view-home">
 		<h1>Audio Vine</h1>
 		<p>
 			Audio Vine helps you discover music by throwing songs at you until it breaks.<br>
+			Choose a path through song similarities, or leave it to chance.
+		</p>
+		<p>
 			Enter a song, artist or album below to start.
+
 		</p>
 		<div id="home-search" class="search-box">
 			<input type="text" placeholder="Search for a song"><input type="button" value="Search">
@@ -47,15 +55,15 @@
 			</p>
 			<ul id="supported-browsers">
 				<li><a href="http://www.google.com/chrome">
-					<img src="/cs465/img/chrome.png">
+					<img src="/img/chrome.png">
 					Google Chrome
 				</a></li>
 				<li><a href="http://www.mozilla.org/firefox">
-					<img src="/cs465/img/firefox.png">
+					<img src="/img/firefox.png">
 					Mozilla Firefox
 				</a></li>
 				<li><a href="http://www.opera.com/browser/">
-					<img src="/cs465/img/opera.png">
+					<img src="/img/opera.png">
 					Opera
 				</a></li>
 			</ul>
@@ -89,6 +97,10 @@
 			</thead>
 			<tbody></tbody>
 		</table>
+
+		<div id="search-controls">
+			<button id="search-cancel" style="display: none">Cancel Search</button>
+		</div>
 	</div>
 
 	<div class="view" id="view-player" style="display: none">
@@ -101,7 +113,7 @@
 			<a id="btn-playpause" class="button"></a>
 			<a id="btn-next" class="button"></a>
 			<a id="album-link" target="_blank">
-				<img src="/cs465/img/no-album.svg" id="album-art">
+				<img src="/img/no-album.svg" id="album-art">
 			<a>
 
 			<div class="info">

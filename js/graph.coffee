@@ -183,18 +183,28 @@ class root.SongData
 		return parsed
 			
 	getSimilar: (limit, callback) =>
-		f = new SimilarTrackFinder(limit)
+		variance = 2.5
+		f = new SimilarTrackFinder(Math.floor(limit * variance))
 		await f.find this.lastfm.name, this.lastfm.artist, (defer err, similar)
 
 		if err
-			console.log err
-			return []
+			console.log 'Error:', err
+			callback err, []
+			return
 
 		items = []
-		console.log 'SIMILAR', similar
-		for track, i in similar.track
+		#console.log 'SIMILAR', similar
+
+		songs = Array::slice.call(similar.track)
+		while songs.length > limit
+			i = Math.floor(Math.random() * songs.length)
+			songs.splice(i, 1)
+
+		for track, i in songs
 			newdata = SongData.fromLastFMData(track)
 			await newdata.getGroovesharkData (defer err, items[i])
+
+		items = items.filter (item) -> !!item.gs.id
 
 		callback null, items
 
@@ -208,11 +218,21 @@ class root.SongNode
 
 		this.children = []
 		this._expanded = false
+		this._expanding = false
+		this._expandingCallbacks = []
 
 		this.favorited = false
 
 	expand: (callback) =>
 		if not this._expanded
+			#console.log 'Expand!'
+			if this._expanding
+				#console.log 'Deferral!'
+				this._expandingCallbacks.push(callback)
+				return
+
+			this._expanding = true
+
 			items = []
 			await this.song.getSimilar SongNode.maxChildren, (defer err, items)
 			this.children = (new SongNode(item, this) for item in items)
@@ -226,7 +246,12 @@ class root.SongNode
 			this.children = this.children.slice(0, SongNode.maxChildren)
 
 		this._expanded = true
+		this._expanding = false
 		callback?(null, this)
+
+		this._expandingCallbacks.forEach (item) =>
+			item?(null, this)
+		this._expandingCallbacks = []
 
 
 class root.SimilarTrackFinder
@@ -258,7 +283,7 @@ class root.SimilarTrackFinder
 				callback this.parseResult(data)...
 
 	parseResult: (data) ->
-		console.log 'PARSING', data
+		#console.log 'PARSING', data
 		if not ('@attr' of data.similartracks)
 			return [404, 'Song not Found']
 
